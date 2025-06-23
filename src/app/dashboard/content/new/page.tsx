@@ -219,8 +219,8 @@ export default function NewContentPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="title" className="text-gray-300">Title</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title" className="text-gray-300 mb-2">Title</Label>
                                         <Input
                                             id="title"
                                             type="text"
@@ -230,8 +230,8 @@ export default function NewContentPage() {
                                             className="bg-gray-700 border-gray-600 text-white"
                                         />
                                     </div>
-                                    <div>
-                                        <Label htmlFor="slug" className="text-gray-300">Slug (URL)</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="slug" className="text-gray-300 mb-2">Slug (URL)</Label>
                                         <Input
                                             id="slug"
                                             type="text"
@@ -241,8 +241,8 @@ export default function NewContentPage() {
                                             className="bg-gray-700 border-gray-600 text-white"
                                         />
                                     </div>
-                                    <div>
-                                        <Label htmlFor="content" className="text-gray-300">Content</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="content" className="text-gray-300 mb-2">Content</Label>
                                         <BlockNoteEditorComponent
                                             value={formData.content}
                                             onChange={(value: string) => handleInputChange('content', value)}
@@ -300,8 +300,8 @@ export default function NewContentPage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    <div>
-                                        <Label htmlFor="type" className="text-gray-300">Type</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="type" className="text-gray-300 mb-2">Type</Label>
                                         <Select
                                             value={formData.type}
                                             onValueChange={(value) => handleInputChange('type', value)}
@@ -319,8 +319,8 @@ export default function NewContentPage() {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div>
-                                        <Label htmlFor="tags" className="text-gray-300">Tags</Label>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tags" className="text-gray-300 mb-2">Tags</Label>
                                         <div className="flex items-center space-x-2">
                                             <Input
                                                 id="tags"

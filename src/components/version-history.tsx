@@ -162,163 +162,149 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
 
     if (loading) {
         return (
-            <Card className="bg-slate-800 border-slate-700">
-                <CardContent className="p-6">
-                    <div className="flex items-center justify-center">
-                        <Icon icon="heroicons:arrow-path" className="h-6 w-6 animate-spin text-purple-400" />
-                        <span className="ml-2 text-slate-300">Loading version history...</span>
-                    </div>
-                </CardContent>
-            </Card>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl shadow-lg p-8 flex items-center justify-center">
+                <Icon icon="heroicons:arrow-path" className="h-6 w-6 animate-spin text-purple-400" />
+                <span className="ml-2 text-slate-300">Loading version history...</span>
+            </div>
         );
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-8">
             {/* Stats Overview */}
             {stats && (
-                <Card className="bg-slate-800 border-slate-700">
-                    <CardHeader>
-                        <CardTitle className="text-white flex items-center">
-                            <Icon icon="heroicons:clock" className="h-5 w-5 mr-2" />
-                            Version Statistics
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-purple-400">{stats.totalVersions}</div>
-                                <div className="text-sm text-slate-400">Total Versions</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-blue-400">{stats.uniqueAuthors}</div>
-                                <div className="text-sm text-slate-400">Contributors</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-green-400">{stats.publishedVersions}</div>
-                                <div className="text-sm text-slate-400">Published</div>
-                            </div>
-                            <div className="text-center">
-                                <div className="text-2xl font-bold text-yellow-400">
-                                    {stats.firstVersion ? new Date(stats.firstVersion.createdAt).toLocaleDateString() : 'N/A'}
-                                </div>
-                                <div className="text-sm text-slate-400">First Created</div>
-                            </div>
+                <div className="bg-gray-900/80 border border-gray-800 rounded-2xl shadow-lg p-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Icon icon="heroicons:clock" className="h-6 w-6 text-purple-400" />
+                        <h2 className="text-2xl font-bold text-slate-100">Version Statistics</h2>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <div className="text-center">
+                            <div className="text-3xl font-extrabold text-purple-400">{stats.totalVersions}</div>
+                            <div className="text-base text-slate-400 mt-1">Total Versions</div>
                         </div>
-                    </CardContent>
-                </Card>
+                        <div className="text-center">
+                            <div className="text-3xl font-extrabold text-blue-400">{stats.uniqueAuthors}</div>
+                            <div className="text-base text-slate-400 mt-1">Contributors</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-extrabold text-green-400">{stats.publishedVersions}</div>
+                            <div className="text-base text-slate-400 mt-1">Published</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-3xl font-extrabold text-yellow-400">{stats.firstVersion ? new Date(stats.firstVersion.createdAt).toLocaleDateString() : '-'}</div>
+                            <div className="text-base text-slate-400 mt-1">First Created</div>
+                        </div>
+                    </div>
+                </div>
             )}
-
+            <div className="border-t border-gray-800 my-6" />
             {/* Version History */}
-            <Card className="bg-slate-800 border-slate-700">
-                <CardHeader>
-                    <CardTitle className="text-white flex items-center">
-                        <Icon icon="heroicons:document-text" className="h-5 w-5 mr-2" />
-                        Version History ({versions.length} versions)
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {versions.length === 0 ? (
-                        <div className="text-center py-8">
-                            <Icon icon="heroicons:clock" className="h-12 w-12 text-slate-500 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-slate-300 mb-2">No Version History</h3>
-                            <p className="text-slate-400 text-sm">
-                                This content was created before version management was implemented.
-                                <br />
-                                Future edits will create version history automatically.
-                            </p>
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {versions.map((version, index) => (
-                                <div
-                                    key={version.$id}
-                                    className={`p-4 border rounded-lg ${version.isCurrentVersion
-                                        ? 'border-purple-500/50 bg-purple-500/10'
-                                        : 'border-slate-600 bg-slate-700/50'
-                                        }`}
-                                >
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3 mb-2">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-lg font-bold text-white">
-                                                        Version {version.version}
-                                                    </span>
-                                                    {version.isCurrentVersion && (
-                                                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                                                            Current
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                                <Badge className={getStatusColor(version.status)}>
-                                                    {version.status.toUpperCase()}
-                                                </Badge>
-                                                <Badge className={getTypeColor(version.type)}>
-                                                    {version.type.toUpperCase()}
-                                                </Badge>
-                                            </div>
-
-                                            <h3 className="text-white font-medium mb-2">{version.title}</h3>
-
-                                            {version.changesSummary && (
-                                                <p className="text-slate-300 text-sm mb-2">
-                                                    <Icon icon="heroicons:pencil" className="inline h-4 w-4 mr-1" />
-                                                    {version.changesSummary}
-                                                </p>
-                                            )}
-
-                                            <div className="flex items-center gap-4 text-sm text-slate-400">
-                                                <div className="flex items-center">
-                                                    <Icon icon="heroicons:user" className="h-4 w-4 mr-1" />
-                                                    {version.author?.gameCharacterName || version.author?.username || 'Unknown'}
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <Icon icon="heroicons:calendar" className="h-4 w-4 mr-1" />
-                                                    {new Date(version.createdAt).toLocaleString()}
-                                                </div>
-                                                {version.publishedAt && (
-                                                    <div className="flex items-center">
-                                                        <Icon icon="heroicons:eye" className="h-4 w-4 mr-1" />
-                                                        Published {new Date(version.publishedAt).toLocaleString()}
-                                                    </div>
+            <div className="bg-gray-900/80 border border-gray-800 rounded-2xl shadow-lg p-8">
+                <div className="flex items-center gap-3 mb-6">
+                    <Icon icon="heroicons:book-open" className="h-6 w-6 text-purple-400" />
+                    <h2 className="text-2xl font-bold text-slate-100">Version History <span className="text-slate-400 font-normal">({versions.length} versions)</span></h2>
+                </div>
+                {versions.length === 0 ? (
+                    <div className="text-center py-8">
+                        <Icon icon="heroicons:clock" className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-slate-300 mb-2">No Version History</h3>
+                        <p className="text-slate-400 text-sm">
+                            This content was created before version management was implemented.
+                            <br />
+                            Future edits will create version history automatically.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {versions.map((version, index) => (
+                            <div
+                                key={version.$id}
+                                className={`p-4 border rounded-lg ${version.isCurrentVersion
+                                    ? 'border-purple-500/50 bg-purple-500/10'
+                                    : 'border-slate-600 bg-slate-700/50'
+                                    }`}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-lg font-bold text-white">
+                                                    Version {version.version}
+                                                </span>
+                                                {version.isCurrentVersion && (
+                                                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                                                        Current
+                                                    </Badge>
                                                 )}
                                             </div>
+                                            <Badge className={getStatusColor(version.status)}>
+                                                {version.status.toUpperCase()}
+                                            </Badge>
+                                            <Badge className={getTypeColor(version.type)}>
+                                                {version.type.toUpperCase()}
+                                            </Badge>
                                         </div>
 
-                                        <div className="flex items-center gap-2 ml-4">
-                                            {!version.isCurrentVersion && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-slate-300 hover:text-white hover:bg-slate-600"
-                                                    onClick={() => {
-                                                        setVersionToRestore(version.version);
-                                                        setRestoreDialogOpen(true);
-                                                    }}
-                                                >
-                                                    <Icon icon="heroicons:arrow-uturn-left" className="h-4 w-4" />
-                                                </Button>
-                                            )}
+                                        <h3 className="text-white font-medium mb-2">{version.title}</h3>
 
-                                            {index < versions.length - 1 && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="text-slate-300 hover:text-white hover:bg-slate-600"
-                                                    onClick={() => compareVersions(version.version.toString(), versions[index + 1].version.toString(), contentId)}
-                                                >
-                                                    <Icon icon="heroicons:arrows-right-left" className="h-4 w-4" />
-                                                </Button>
+                                        {version.changesSummary && (
+                                            <p className="text-slate-300 text-sm mb-2">
+                                                <Icon icon="heroicons:pencil" className="inline h-4 w-4 mr-1" />
+                                                {version.changesSummary}
+                                            </p>
+                                        )}
+
+                                        <div className="flex items-center gap-4 text-sm text-slate-400">
+                                            <div className="flex items-center">
+                                                <Icon icon="heroicons:user" className="h-4 w-4 mr-1" />
+                                                {version.author?.gameCharacterName || version.author?.username || 'Unknown'}
+                                            </div>
+                                            <div className="flex items-center">
+                                                <Icon icon="heroicons:calendar" className="h-4 w-4 mr-1" />
+                                                {new Date(version.createdAt).toLocaleString()}
+                                            </div>
+                                            {version.publishedAt && (
+                                                <div className="flex items-center">
+                                                    <Icon icon="heroicons:eye" className="h-4 w-4 mr-1" />
+                                                    Published {new Date(version.publishedAt).toLocaleString()}
+                                                </div>
                                             )}
                                         </div>
                                     </div>
+
+                                    <div className="flex items-center gap-2 ml-4">
+                                        {!version.isCurrentVersion && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-slate-300 hover:text-white hover:bg-slate-600"
+                                                onClick={() => {
+                                                    setVersionToRestore(version.version);
+                                                    setRestoreDialogOpen(true);
+                                                }}
+                                            >
+                                                <Icon icon="heroicons:arrow-uturn-left" className="h-4 w-4" />
+                                            </Button>
+                                        )}
+
+                                        {index < versions.length - 1 && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="text-slate-300 hover:text-white hover:bg-slate-600"
+                                                onClick={() => compareVersions(version.version.toString(), versions[index + 1].version.toString(), contentId)}
+                                            >
+                                                <Icon icon="heroicons:arrows-right-left" className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
 
             {/* Version Comparison Dialog */}
             {comparison && selectedVersions && (

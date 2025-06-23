@@ -223,7 +223,7 @@ export default function DashboardLayout({
                     {/* UserNav handles all header functionality */}
                     <UserNav />
 
-                    <main className="flex-1 pt-20 lg:pt-6 min-w-0">
+                    <main className="flex-1 mt-32 md:mt-16 min-w-0">
                         {children}
                     </main>
                 </div>
