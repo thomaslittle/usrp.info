@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       // Return default dashboard data if user lookup fails
       return NextResponse.json({
         user: {
-          username: currentUser!.name || 'User',
+          username: currentUser!.email?.split('@')[0] || 'User',
           email: currentUser!.email,
           role: 'viewer',
           department: 'ems'
@@ -68,10 +68,10 @@ export async function GET(request: NextRequest) {
       // Return default dashboard data if user not found
       return NextResponse.json({
         user: {
-          username: currentUser.username || 'User',
-          email: currentUser.email,
-          role: currentUser.role || 'viewer',
-          department: currentUser.department || 'ems'
+          username: currentUser!.email?.split('@')[0] || 'User',
+          email: currentUser!.email,
+          role: 'viewer',
+          department: 'ems'
         },
         stats: {
           totalContent: 0,

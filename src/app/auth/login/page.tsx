@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,7 +33,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
+function LoginPageContent() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const searchParams = useSearchParams();
@@ -181,5 +181,37 @@ export default function LoginPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+function LoginPageLoading() {
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+            <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
+                <CardHeader className="text-center space-y-4">
+                    <div className="flex justify-center">
+                        <img
+                            src="/images/wordmark.webp"
+                            alt="Unscripted RP"
+                            className="w-48 object-contain"
+                        />
+                    </div>
+                    <p className="text-gray-400">Loading...</p>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex justify-center py-8">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500"></div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoginPageLoading />}>
+            <LoginPageContent />
+        </Suspense>
     );
 } 
