@@ -155,7 +155,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                 <div className="flex items-center justify-between mb-6 border-b border-gray-700 pb-4">
                                     <h2 className="text-2xl font-bold text-white">EMS Tools</h2>
                                 </div>
-                                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                {/* <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                     <Card className="backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 shadow-lg p-2">
                                         <CardContent className="p-8">
                                             <div className="flex items-center gap-4 mb-4">
@@ -178,7 +178,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                             </Button>
                                         </CardContent>
                                     </Card>
-                                </div>
+                                </div> */}
                             </section>
 
                             {/* Standard Operating Procedures */}
