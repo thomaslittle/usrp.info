@@ -34,24 +34,22 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
     return (
         <div className="min-h-screen">
             {/* Header */}
-            <header className=" overflow-hidden bg-gradient-to-r from-purple-900 via-violet-900 to-purple-900 border-b border-purple-500/20">
-
+            <header className="overflow-hidden bg-gradient-to-r from-purple-900 via-violet-900 to-purple-900 border-b border-purple-500/20">
                 <div className="relative container mx-auto px-6 py-6">
-                    <div className="flex items-center justify-between relative z-10">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between relative z-10">
                         {/* Logo and Navigation */}
-                        <div className="flex items-center gap-4">
+                        <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
                             {/* Back to Home */}
-                            <Link href="/" className="flex items-center gap-3 group">
-
-                                <div className="sm:block">
-                                    <img src="/images/unscripted_logo.webp" alt="Unscripted RP" className="w-[168px] h-[26px]" />
-                                    <div className="text-purple-300 text-sm text-right">Resource Portal</div>
+                            <Link href="/" className="flex items-center gap-3 group ml-0 md:ml-0">
+                                <div>
+                                    <img src="/images/logo-short.png" alt="Unscripted RP" className="w-10 h-10 sm:hidden" />
+                                    <img src="/images/unscripted_logo.webp" alt="Unscripted RP" className="w-[168px] h-[26px] hidden sm:block" />
+                                    <div className="text-purple-300 text-sm text-left md:text-right">Resource Portal</div>
                                 </div>
                             </Link>
-
                             {/* Department Icon and Name */}
-                            <div className="flex items-center gap-4">
-                                <div className="w-px h-12 bg-purple-500/30"></div>
+                            <div className="flex items-center gap-4 mt-4 md:mt-0 w-full md:w-auto">
+                                <div className="hidden md:block w-px h-12 bg-purple-500/30"></div>
                                 <div className="flex items-center gap-3">
                                     <div className={`p-3 bg-gradient-to-br ${config.color} rounded-xl shadow-lg`}>
                                         <Icon icon={config.icon} className="h-8 w-8 text-white" />
@@ -63,8 +61,6 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
                                 </div>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </header>
@@ -94,18 +90,6 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
                             })}
                         </div>
 
-                        {isAdmin && (
-                            <Link href="/dashboard">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="flex items-center gap-2 whitespace-nowrap transition-all duration-200 font-light border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300"
-                                >
-                                    <Icon icon="heroicons:shield-check-16-solid" className="h-4 w-4" />
-                                    Admin Dashboard
-                                </Button>
-                            </Link>
-                        )}
                     </div>
                 </div>
             </nav>
@@ -118,7 +102,7 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
             {/* Footer */}
             <footer className="bg-gray-950/80 backdrop-blur-sm border-t border-gray-800">
                 <div className="container mx-auto px-6 py-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {/* Department Info */}
                         <div>
                             <div className="flex items-center gap-3 mb-4">

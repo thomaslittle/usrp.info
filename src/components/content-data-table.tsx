@@ -118,6 +118,7 @@ export function ContentDataTable({
             ),
             enableSorting: false,
             enableHiding: false,
+            size: 40,
         },
         {
             accessorKey: "title",
@@ -219,6 +220,7 @@ export function ContentDataTable({
         {
             id: "actions",
             enableHiding: false,
+            size: 60,
             cell: ({ row }: { row: { getValue: (key: string) => string; original: Content } }) => {
                 const content = row.original
 
@@ -297,7 +299,7 @@ export function ContentDataTable({
     })
 
     return (
-        <div className="w-full">
+        <div className="w-full max-w-full overflow-hidden">
             <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter titles..."
@@ -334,14 +336,18 @@ export function ContentDataTable({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-            <div className="rounded-md border border-gray-700 bg-gray-800/30 backdrop-blur-sm">
+            <div className="rounded-md border border-gray-700 bg-gray-900/50">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
+                                    const isSelectOrActions = header.id === 'select' || header.id === 'actions'
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead
+                                            key={header.id}
+                                            className={`whitespace-nowrap ${isSelectOrActions ? '' : 'min-w-[120px]'}`}
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -361,21 +367,27 @@ export function ContentDataTable({
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                 >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </TableCell>
-                                    ))}
+                                    {row.getVisibleCells().map((cell) => {
+                                        const isSelectOrActions = cell.column.id === 'select' || cell.column.id === 'actions'
+                                        return (
+                                            <TableCell
+                                                key={cell.id}
+                                                className={`whitespace-nowrap ${isSelectOrActions ? '' : 'min-w-[120px]'}`}
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </TableCell>
+                                        )
+                                    })}
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
                                 <TableCell
                                     colSpan={columns.length}
-                                    className="h-24 text-center text-gray-400"
+                                    className="h-24 text-center text-gray-400 whitespace-normal"
                                 >
                                     No results.
                                 </TableCell>

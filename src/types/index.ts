@@ -25,6 +25,7 @@ export interface User {
   createdAt: string;
   $createdAt: string;
   $updatedAt: string;
+  appwriteAccountId?: string;
 }
 
 export interface Department {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { UserNav } from '@/components/user-nav';
+import '@/lib/fetch-logger';
 
 export const metadata: Metadata = {
   title: "Unscripted Resource Portal",

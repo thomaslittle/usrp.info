@@ -62,13 +62,15 @@ export function UserNav() {
     const handleMenuClick = () => setOpen(false);
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-50 md:left-auto md:top-4 md:right-4">
-            <div className="container mx-auto flex items-center justify-between p-3 md:justify-end md:p-0">
-                <div className="flex items-center gap-2 bg-gray-800/50 backdrop-blur-lg md:rounded-full md:px-3 md:py-1.5 md:shadow-lg md:border md:border-gray-700/50">
-                    <GlobalSearch />
+        <div className="fixed top-0 right-0 z-50 md:top-4 md:right-4">
+            <div className="container mx-auto flex items-center justify-end p-3 md:p-0">
+                <div className="flex items-center gap-2 bg-gray-800/50 backdrop-blur-lg rounded-full px-3 py-1.5 shadow-lg border border-gray-700/50">
+                    <div className="">
+                        <GlobalSearch />
+                    </div>
                     <NotificationDropdown />
                     <Separator orientation="vertical" className="h-8 bg-gray-700/70 mr-3" />
-                    <div className="hidden sm:flex items-center gap-2">
+                    <div className="flex items-center gap-2 ml-auto">
                         <div className="flex flex-col text-right">
                             <span className="text-white font-medium leading-tight text-sm">{userProfile.username}</span>
                             <span className="text-xs text-purple-400 font-semibold tracking-wide">{userProfile.department.toUpperCase()}</span>

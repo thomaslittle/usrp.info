@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +36,15 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const searchParams = useSearchParams();
+
+    // Check for OAuth errors in URL parameters
+    useEffect(() => {
+        const errorParam = searchParams.get('error');
+        if (errorParam === 'oauth_failed') {
+            setError('Discord login failed. This might be because an account with this email already exists. Please try logging in with email/password instead, or contact an administrator.');
+        }
+    }, [searchParams]);
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),

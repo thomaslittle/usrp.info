@@ -7,6 +7,8 @@ import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/he
 // import { userService } from './appwrite';
 import { User } from '@/types';
 
+export type { UserRole };
+
 export async function getCurrentUser(): Promise<Models.User<Models.Preferences> | null> {
   try {
     return await account.get();
@@ -18,12 +20,48 @@ export async function getCurrentUser(): Promise<Models.User<Models.Preferences> 
 export async function getCurrentUserFromHeaders(headers: ReadonlyHeaders): Promise<Models.User<Models.Preferences> | null> {
   try {
     const cookieHeader = headers.get('cookie');
+    const authHeader = headers.get('authorization');
+    const fallbackHeader = headers.get('x-fallback-cookies');
+    const sessionHeader = headers.get('x-appwrite-session');
     let sessionToken = null;
 
-    if (cookieHeader) {
+    // Debug logging for live site
+    console.log('🔍 Auth headers debug:', {
+      hasCookie: !!cookieHeader,
+      hasAuth: !!authHeader,
+      hasFallback: !!fallbackHeader,
+      hasSession: !!sessionHeader,
+      cookieLength: cookieHeader?.length || 0,
+      cookiePreview: cookieHeader?.substring(0, 100) + '...',
+      fallbackPreview: fallbackHeader?.substring(0, 50) + '...',
+      sessionPreview: sessionHeader?.substring(0, 50) + '...'
+    });
+
+    // Try X-Appwrite-Session header first (most reliable)
+    if (sessionHeader) {
+      sessionToken = sessionHeader;
+      console.log('🔑 Using X-Appwrite-Session header token');
+    }
+
+    // Try Authorization header
+    if (!sessionToken && authHeader && authHeader.startsWith('Bearer ')) {
+      sessionToken = authHeader.substring(7);
+      console.log('🔑 Using Authorization header token');
+    }
+
+    // Try fallback header (from client-side session token)
+    if (!sessionToken && fallbackHeader) {
+      sessionToken = fallbackHeader;
+      console.log('🔑 Using X-Fallback-Cookies header token');
+    }
+
+    // Try cookie header
+    if (!sessionToken && cookieHeader) {
       const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
+        if (key && value) {
+          acc[key] = value;
+        }
         return acc;
       }, {} as Record<string, string>);
 
@@ -36,22 +74,35 @@ export async function getCurrentUserFromHeaders(headers: ReadonlyHeaders): Promi
         'appwrite_session'
       ];
       
+      console.log('🍪 Available cookies:', Object.keys(cookies));
+      
       for (const key of possibleSessionKeys) {
         if (cookies[key]) {
           sessionToken = cookies[key];
+          console.log('🔑 Found session token in cookies:', key);
           break;
         }
       }
-    }
-
-    const authHeader = headers.get('authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      sessionToken = authHeader.substring(7);
+      
+      if (!sessionToken) {
+        console.log('🚫 No session token found in cookies. Checking all cookie keys:', Object.keys(cookies));
+        // Try to find any session-like cookie
+        const sessionCookie = Object.keys(cookies).find(key => 
+          key.includes('session') || key.includes('a_session')
+        );
+        if (sessionCookie) {
+          sessionToken = cookies[sessionCookie];
+          console.log('🔑 Found alternative session cookie:', sessionCookie);
+        }
+      }
     }
     
     if (!sessionToken) {
+      console.warn('🚫 No session token found in any header');
       return null;
     }
+
+    console.log('🔐 Attempting to authenticate with session token (length: ' + sessionToken.length + ')...');
 
     const { Client: ServerClient, Account: ServerAccount } = await import('node-appwrite');
     
@@ -63,9 +114,11 @@ export async function getCurrentUserFromHeaders(headers: ReadonlyHeaders): Promi
 
     const sessionAccount = new ServerAccount(sessionClient);
     
-    return await sessionAccount.get();
+    const user = await sessionAccount.get();
+    console.log('✅ Successfully authenticated user:', user.email);
+    return user;
   } catch (error) {
-    console.error('Error getting user from headers:', error);
+    console.error('❌ Error getting user from headers:', error);
     return null;
   }
 }
@@ -133,26 +186,37 @@ export async function register(email: string, password: string, username: string
 // Discord OAuth functions
 export async function loginWithDiscord() {
   try {
-    // Clear any existing sessions first
-    await clearExistingSessions();
-    
-    // Request additional Discord scopes to access server information
-    const scopes = ['identify', 'email', 'guilds', 'guilds.members.read'];
-    
     // Use the correct app domains from the allowed hosts list
     const baseUrl = process.env.NODE_ENV === 'production' 
       ? 'https://www.usrp.info'
-      : 'http://localhost:3000'; // No port number - just localhost
+      : 'http://localhost:3000';
     
-    // Redirect to Discord OAuth - Appwrite will handle the callback internally
+    // Try to get current user first to check if already logged in
+    try {
+      const currentUser = await account.get();
+      if (currentUser) {
+        // User is already logged in, redirect to dashboard
+        window.location.href = `${baseUrl}/dashboard`;
+        return { success: true };
+      }
+    } catch {
+      // User is not logged in, proceed with OAuth
+    }
+    
+    // Request Discord scopes
+    const scopes = ['identify', 'email'];
+    
+    // Create OAuth2 session - Appwrite handles user matching automatically
+    // If user exists, it will log them in; if not, it will create a new user
     account.createOAuth2Session(
       OAuthProvider.Discord,
-      `${baseUrl}/dashboard`, // Success redirect
-      `${baseUrl}/auth/login`, // Simplified failure redirect - no query params
+      `${baseUrl}/auth/oauth-callback`, // Custom callback page for better error handling
+      `${baseUrl}/auth/oauth-callback`, // Same page handles both success and failure
       scopes
     );
     return { success: true };
   } catch (error: unknown) {
+    console.error('Discord OAuth error:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 }

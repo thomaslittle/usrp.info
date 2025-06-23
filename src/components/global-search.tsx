@@ -67,10 +67,15 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
         setIsLoading(true);
         try {
             const sessionToken = getAppwriteSessionToken();
+            const headers: Record<string, string> = {};
+
+            if (sessionToken) {
+                headers['Authorization'] = `Bearer ${sessionToken}`;
+                headers['X-Fallback-Cookies'] = sessionToken;
+            }
+
             const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`, {
-                headers: {
-                    'X-Fallback-Cookies': sessionToken || ''
-                }
+                headers
             });
 
             if (response.ok) {

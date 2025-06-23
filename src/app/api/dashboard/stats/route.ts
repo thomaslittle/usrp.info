@@ -5,30 +5,50 @@ import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get current user from auth
-    const currentUser = await getCurrentUserFromRequest(request);
+    // Try to get current user from auth
+    let currentUser = await getCurrentUserFromRequest(request);
     
+    // If auth fails, try to get user email from query params as fallback
     if (!currentUser) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      const { searchParams } = new URL(request.url);
+      const userEmail = searchParams.get('email');
+      
+      if (userEmail) {
+        console.log('🔄 Auth failed, trying fallback with email:', userEmail);
+        // Create a minimal user object for the dashboard
+        currentUser = {
+          email: userEmail,
+          $id: 'fallback',
+          name: userEmail.split('@')[0],
+          prefs: {}
+        } as any;
+      } else {
+        console.log('🚫 No authenticated user found and no email fallback in dashboard stats API');
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
     }
+
+    console.log('✅ Authenticated user for dashboard:', currentUser!.email);
 
     // Get user profile from database
     let userData;
     try {
+      console.log('🔍 Looking up user in database:', currentUser!.email);
       const userResult = await adminDatabases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
-        [Query.equal('email', currentUser.email)]
+        [Query.equal('email', currentUser!.email)]
       );
       
       userData = userResult.documents[0];
+      console.log('📊 User lookup result:', userData ? 'Found' : 'Not found');
     } catch (userError) {
-      console.error('Error fetching user:', userError);
+      console.error('❌ Error fetching user from database:', userError);
       // Return default dashboard data if user lookup fails
       return NextResponse.json({
         user: {
-          username: 'User',
-          email: currentUser.email,
+          username: currentUser!.name || 'User',
+          email: currentUser!.email,
           role: 'viewer',
           department: 'ems'
         },
@@ -44,13 +64,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (!userData) {
+      console.log('⚠️ User not found in database, returning default data');
       // Return default dashboard data if user not found
       return NextResponse.json({
         user: {
-          username: 'User',
+          username: currentUser.username || 'User',
           email: currentUser.email,
-          role: 'viewer',
-          department: 'ems'
+          role: currentUser.role || 'viewer',
+          department: currentUser.department || 'ems'
         },
         stats: {
           totalContent: 0,

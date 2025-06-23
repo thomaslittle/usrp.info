@@ -114,7 +114,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                         <h1 className="text-4xl font-bold text-white mb-4">
                             {department.name}
                         </h1>
-                        <p className="text-xl text-gray-300">
+                        <p className="text-xl text-gray-300 mb-6">
                             Emergency Medical Services Resource Hub
                         </p>
                     </div>
@@ -127,7 +127,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                             </p>
                         </div>
                     ) : (
-                        <div className="space-y-12">
+                        <div className="space-y-16">
                             {/* Add Content Button */}
                             {/* {canEdit && (
                                 <div className="flex justify-end">
@@ -142,11 +142,42 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
 
                             {/* Department Roster */}
                             <section>
-                                <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center justify-between mb-6 border-b border-gray-700 pb-4">
                                     <h2 className="text-2xl font-bold text-white">Department Directory</h2>
                                 </div>
-                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                     <DepartmentRosterCard />
+                                </div>
+                            </section>
+
+                            {/* EMS Tools */}
+                            <section>
+                                <div className="flex items-center justify-between mb-6 border-b border-gray-700 pb-4">
+                                    <h2 className="text-2xl font-bold text-white">EMS Tools</h2>
+                                </div>
+                                <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                    <Card className="backdrop-blur-sm bg-white/10 border-white/20 hover:bg-white/20 transition-all duration-300 shadow-lg p-2">
+                                        <CardContent className="p-8">
+                                            <div className="flex items-center gap-4 mb-4">
+                                                <div className="p-3 bg-blue-500/20 rounded-full">
+                                                    <Icon icon="heroicons:megaphone-16-solid" className="h-6 w-6 text-blue-400" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-white">AI Radio Translator</h3>
+                                                    <p className="text-sm text-gray-400">Convert natural language to proper radio calls</p>
+                                                </div>
+                                            </div>
+                                            <p className="text-gray-300 text-sm mb-4">
+                                                Use AI to translate natural language into proper radio call signs using USRP EMS 10-codes and response protocols.
+                                            </p>
+                                            <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                                                <Link href="/ems/radio-translator">
+                                                    <Icon icon="heroicons:arrow-right-16-solid" className="mr-2 h-4 w-4" />
+                                                    Open Radio Translator
+                                                </Link>
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                             </section>
 
@@ -164,7 +195,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                             </Link>
                                         )}
                                     </div>
-                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {contentByType.sop.map((item) => (
                                             <ContentCard key={item.$id} content={item} canEdit={!!canEdit} />
                                         ))}
@@ -186,7 +217,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                             </Link>
                                         )}
                                     </div>
-                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {contentByType.guide.map((item) => (
                                             <ContentCard key={item.$id} content={item} canEdit={!!canEdit} />
                                         ))}
@@ -208,7 +239,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                             </Link>
                                         )}
                                     </div>
-                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {contentByType.resource.map((item) => (
                                             <ContentCard key={item.$id} content={item} canEdit={!!canEdit} />
                                         ))}
@@ -230,7 +261,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                             </Link>
                                         )}
                                     </div>
-                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                                         {contentByType.training.map((item) => (
                                             <ContentCard key={item.$id} content={item} canEdit={!!canEdit} />
                                         ))}
@@ -339,16 +370,16 @@ function DepartmentRosterCard() {
                         </a>
                     </h3>
                     <div className="flex flex-wrap gap-2 mb-3">
-                        <span className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-md">
+                        <span className="px-3 py-1 text-xs font-bold bg-purple-600/30 text-purple-100 rounded-md border border-purple-500/40 shadow-sm">
                             Personnel
                         </span>
-                        <span className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-md">
+                        <span className="px-3 py-1 text-xs font-bold bg-purple-600/30 text-purple-100 rounded-md border border-purple-500/40 shadow-sm">
                             Directory
                         </span>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <div className="text-sm text-gray-400">
+                <div className="flex flex-col items-end gap-2">
+                    <div className="text-xs font-semibold text-gray-300 bg-gray-900/60 px-2 py-1 rounded border border-gray-700">
                         v1.00
                     </div>
                 </div>
@@ -358,7 +389,7 @@ function DepartmentRosterCard() {
                 <p className="uppercase text-xs font-bold text-gray-400 tracking-wider">
                     roster
                 </p>
-                <span>
+                <span className="text-xs font-semibold text-blue-200 bg-blue-900/40 px-2 py-1 rounded border border-blue-700">
                     {new Date().toLocaleDateString()}
                 </span>
             </div>

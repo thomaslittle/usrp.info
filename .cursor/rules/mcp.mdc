@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+if instructed to take a screenshot with browser-tools MCP, auto-analyze the image with openvision MCP.

@@ -112,56 +112,60 @@ export default function UserManagementPage() {
         search: ''
     });
 
-    useEffect(() => {
-        const loadUsers = async () => {
-            try {
-                const authUser = await getCurrentUser();
-                if (!authUser) return;
+    const loadUsers = async () => {
+        setLoading(true);
+        try {
+            const authUser = await getCurrentUser();
+            if (!authUser) return;
 
-                const sessionToken = getAppwriteSessionToken();
+            const sessionToken = getAppwriteSessionToken();
 
-                const profileResponse = await fetch(`/api/users/profile?email=${encodeURIComponent(authUser.email)}`, {
-                    headers: {
-                        ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
-                    }
-                });
-                if (!profileResponse.ok) {
-                    console.error('Failed to get user profile');
-                    return;
+            const profileResponse = await fetch(`/api/users/profile?email=${encodeURIComponent(authUser.email)}`, {
+                headers: {
+                    ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
                 }
-                const profileData = await profileResponse.json();
-                if (!profileData.user) {
-                    console.error('User profile not found');
-                    return;
-                }
-
-                setCurrentUser(profileData.user as User);
-
-                if (!['admin', 'super_admin'].includes(profileData.user.role)) {
-                    setLoading(false);
-                    return;
-                }
-
-                const usersResponse = await fetch(`/api/users?email=${encodeURIComponent(authUser.email)}`, {
-                    headers: {
-                        ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
-                    }
-                });
-                if (!usersResponse.ok) {
-                    console.error('Failed to load users');
-                    return;
-                }
-                const usersData = await usersResponse.json();
-
-                setUsers(usersData.users as User[]);
-                setFilteredUsers(usersData.users as User[]);
-            } catch (error) {
-                console.error('Error loading users:', error);
-            } finally {
+            });
+            if (!profileResponse.ok) {
+                console.error('Failed to get user profile');
                 setLoading(false);
+                return;
             }
-        };
+            const profileData = await profileResponse.json();
+            if (!profileData.user) {
+                console.error('User profile not found');
+                setLoading(false);
+                return;
+            }
 
+            setCurrentUser(profileData.user as User);
+
+            if (!['admin', 'super_admin'].includes(profileData.user.role)) {
+                setLoading(false);
+                return;
+            }
+
+            const usersResponse = await fetch(`/api/users?email=${encodeURIComponent(authUser.email)}`, {
+                headers: {
+                    ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
+                }
+            });
+            if (!usersResponse.ok) {
+                console.error('Failed to load users');
+                setLoading(false);
+                return;
+            }
+            const usersData = await usersResponse.json();
+
+            setUsers(usersData.users as User[]);
+            setFilteredUsers(usersData.users as User[]);
+        } catch (error) {
+            console.error('Error loading users:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         loadUsers();
     }, []);
 
@@ -526,9 +530,9 @@ export default function UserManagementPage() {
                 {/* User Views */}
                 <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'compact' | 'expanded')} className="w-full">
 
-                    <TabsContent value="compact" className="mt-0">
+                    <TabsContent value="compact" className="space-y-4 overflow-x-auto">
                         <UserDataTable
-                            data={users}
+                            data={filteredUsers}
                             currentUser={currentUser}
                             onPromoteUser={handlePromoteUser}
                             onDeleteUser={handleDeleteUser}
@@ -676,7 +680,7 @@ export default function UserManagementPage() {
                             </Card>
 
                             {/* Users Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                                 {filteredUsers.map((user) => (
                                     <Card key={user.$id} className={cn(
                                         "bg-gray-800/50 border border-gray-700/50 backdrop-blur-sm hover:bg-gray-800/70 transition-colors",

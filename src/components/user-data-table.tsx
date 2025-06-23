@@ -202,6 +202,7 @@ export function UserDataTable({
             ),
             enableSorting: false,
             enableHiding: false,
+            size: 40,
         },
         {
             accessorKey: "username",
@@ -332,6 +333,7 @@ export function UserDataTable({
         {
             id: "actions",
             enableHiding: false,
+            size: 60,
             cell: ({ row }) => {
                 const user = row.original
 

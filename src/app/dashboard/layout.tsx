@@ -123,7 +123,7 @@ export default function DashboardLayout({
                 {/* Mobile sidebar */}
                 <div className={cn("fixed inset-0 z-50 lg:hidden", sidebarOpen ? 'block' : 'hidden')}>
                     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-                    <div className="fixed inset-y-0 left-0 w-72 bg-slate-900/90 backdrop-blur-xl border-r border-white/10 overflow-y-auto">
+                    <div className="fixed inset-y-0 left-0 w-72 bg-gray-800/50 backdrop-blur-xl border-r border-white/10 overflow-y-auto">
                         <div className="flex h-20 items-center justify-between px-6">
                             <div className="flex items-center space-x-3">
                                 <img src="/images/wordmark.webp" alt="Unscripted RP" className="h-10 object-contain" />
@@ -204,27 +204,26 @@ export default function DashboardLayout({
                     </div>
                 </div>
 
-                <div className="flex flex-1 flex-col">
+                <div className="flex flex-1 flex-col min-w-0">
                     {/* Mobile header section with hamburger menu */}
                     <div className="lg:hidden bg-slate-900/95 backdrop-blur-xl border-b border-white/10 h-16 flex items-center px-4 relative z-40">
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => setSidebarOpen(true)}
-                            className="text-slate-400 hover:text-white bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-xl"
+                            className="text-slate-400 hover:text-white p-2"
                         >
                             <Icon icon="heroicons:bars-3-16-solid" className="h-5 w-5" />
                         </Button>
-                        <div className="flex-1 flex justify-center">
-                            <img src="/images/wordmark.webp" alt="Unscripted RP" className="h-8 object-contain" />
-                        </div>
-                        <div className="w-10" /> {/* Spacer for centering */}
+                        <div className="w-px h-8 bg-gray-700 mx-4"></div>
+                        <img src="/images/logo-short.png" alt="Logo" className="h-8 w-8 object-contain" />
+                        <div className="flex-1" />
                     </div>
 
                     {/* UserNav handles all header functionality */}
                     <UserNav />
 
-                    <main className="flex-1 overflow-x-auto pt-20 lg:pt-6">
+                    <main className="flex-1 pt-20 lg:pt-6 min-w-0">
                         {children}
                     </main>
                 </div>
