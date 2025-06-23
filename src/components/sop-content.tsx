@@ -352,7 +352,11 @@ export function SOPContent() {
             case 'strikes': return <StrikeSystem />;
             case 'coroner': return <CoronerProcedures />;
             case 'protocols': return <GeneralProtocolsDisplay />;
-            default: return null;
+            default: return (
+                <p className="text-sm text-gray-400">
+                    No content available. This SOP may be in development or requires &quot;Whitelisted&quot; access.
+                </p>
+            );
         }
     };
 
@@ -414,4 +418,4 @@ export function SOPContent() {
             </div>
         </>
     );
-}
+} 

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
 import { ID } from 'node-appwrite';
 
@@ -482,10 +482,10 @@ const emsUsers = [
   }
 ];
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const results = {
-      users: [] as any[],
+      users: [] as unknown[],
       errors: [] as string[]
     };
 
@@ -530,7 +530,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const isSeeded = await isDatabaseSeeded();
+    // Simple check to see if database has users
+    const users = await adminDatabases.listDocuments(
+      DATABASE_ID,
+      COLLECTIONS.USERS,
+      []
+    );
+    const isSeeded = users.documents.length > 0;
     return NextResponse.json({ isSeeded });
   } catch (error) {
     console.error('Seed check API error:', error);

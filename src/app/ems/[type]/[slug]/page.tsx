@@ -1,9 +1,13 @@
-import React from 'react';
 import { notFound } from 'next/navigation';
 import { DepartmentLayout } from '@/components/department-layout';
 import { ContentRenderer } from '@/components/content-renderer';
-import { departmentService, contentService } from '@/lib/database';
-import { Content, Department } from '@/types';
+import { departmentService, contentService, userService } from '@/lib/database';
+import { Content, Department, User } from '@/types';
+import { getCurrentUserFromHeaders } from '@/lib/auth';
+import { Button } from '@/components/ui/button';
+import { Icon } from '@iconify/react';
+import Link from 'next/link';
+import { headers } from 'next/headers';
 
 const emsConfig = {
     name: 'EMS',
@@ -28,36 +32,28 @@ const emsConfig = {
 };
 
 interface PageProps {
-    params: {
+    params: Promise<{
         type: string;
         slug: string;
-    };
+    }>;
 }
 
 async function getContent(type: string, slug: string): Promise<{ content: Content | null, department: Department | null }> {
     try {
-        // Get EMS department
         const departmentDoc = await departmentService.getBySlug('ems');
         if (!departmentDoc) {
             return { content: null, department: null };
         }
 
-        // Get content by slug
         const contentDoc = await contentService.getBySlug(departmentDoc.$id, slug);
-        if (!contentDoc) {
+        if (!contentDoc || contentDoc.type !== type) {
             return { content: null, department: null };
         }
 
-        // Verify the content type matches the URL
-        if (contentDoc.type !== type) {
-            return { content: null, department: null };
-        }
-
-        // Type cast the documents to our types
-        const department = departmentDoc as unknown as Department;
-        const content = contentDoc as unknown as Content;
-
-        return { content, department };
+        return {
+            content: contentDoc as unknown as Content,
+            department: departmentDoc as unknown as Department
+        };
     } catch (error) {
         console.error('Error fetching content:', error);
         return { content: null, department: null };
@@ -65,31 +61,53 @@ async function getContent(type: string, slug: string): Promise<{ content: Conten
 }
 
 export default async function ContentPage({ params }: PageProps) {
-    const { type, slug } = params;
+    const { type, slug } = await params;
     const { content, department } = await getContent(type, slug);
 
     if (!content || !department) {
         notFound();
     }
 
+    const headerList = await headers();
+    const authUser = await getCurrentUserFromHeaders(headerList);
+
+    let user: User | null = null;
+    if (authUser) {
+        const userDoc = await userService.getByEmail(authUser.email);
+        if (userDoc) {
+            user = userDoc as unknown as User;
+        }
+    }
+
+    const canEdit = user && ['admin', 'super_admin', 'editor'].includes(user.role);
+
     const currentPath = `/ems/${type}/${slug}`;
 
     return (
         <DepartmentLayout config={emsConfig} currentPath={currentPath}>
             <div className="container mx-auto px-6 lg:px-8 py-8">
-                {/* Header */}
                 <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                        <a
-                            href="/ems"
-                            className="text-purple-400 hover:text-purple-300 transition-colors"
-                        >
-                            ← Back to EMS Hub
-                        </a>
-                        <span className="text-gray-500">|</span>
-                        <span className="text-gray-400 capitalize">
-                            {type.replace('-', ' ')}
-                        </span>
+                    <div className="flex items-center justify-between gap-4 mb-4">
+                        <div className="flex items-center gap-4">
+                            <Link
+                                href="/ems"
+                                className="text-purple-400 hover:text-purple-300 transition-colors"
+                            >
+                                ← Back to EMS Hub
+                            </Link>
+                            <span className="text-gray-500">|</span>
+                            <span className="text-gray-400 uppercase">
+                                {type.replace('-', ' ')}
+                            </span>
+                        </div>
+                        {canEdit && (
+                            <Link href={`/dashboard/content/${content.$id}/edit`}>
+                                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                                    <Icon icon="heroicons:pencil-square-16-solid" className="mr-2 h-4 w-4" />
+                                    Edit
+                                </Button>
+                            </Link>
+                        )}
                     </div>
 
                     <h1 className="text-4xl font-bold text-white mb-4">
@@ -97,7 +115,7 @@ export default async function ContentPage({ params }: PageProps) {
                     </h1>
 
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                        <span className="capitalize">
+                        <span className="uppercase">
                             {content.type.replace('-', ' ')}
                         </span>
                         <span>•</span>
@@ -114,7 +132,7 @@ export default async function ContentPage({ params }: PageProps) {
                             <>
                                 <span>•</span>
                                 <div className="flex flex-wrap gap-2">
-                                    {content.tags.map((tag) => (
+                                    {content.tags.map((tag: string) => (
                                         <span
                                             key={tag}
                                             className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-md"
@@ -128,19 +146,17 @@ export default async function ContentPage({ params }: PageProps) {
                     </div>
                 </div>
 
-                {/* Content */}
                 <div className="">
                     <ContentRenderer content={content} />
                 </div>
 
-                {/* Footer Actions */}
                 <div className="mt-8 flex items-center justify-between">
-                    <a
+                    <Link
                         href="/ems"
                         className="inline-flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors"
                     >
                         ← Back to EMS Hub
-                    </a>
+                    </Link>
 
                     <div className="text-sm text-gray-400">
                         Last updated: {new Date(content.updatedAt).toLocaleDateString()}

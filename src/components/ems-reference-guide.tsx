@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { Icon } from '@iconify/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 export function EMSReferenceGuide() {
     const [activeTab, setActiveTab] = useState<'ems' | 'doctors'>('ems');

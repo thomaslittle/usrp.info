@@ -15,7 +15,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "relative inline-flex h-auto items-center justify-center rounded-2xl bg-slate-800/60 p-2 text-muted-foreground backdrop-blur-sm border border-white/10",
+      "relative inline-flex h-auto items-center justify-center rounded-2xl bg-slate-800/60 p-2 text-muted-foreground backdrop-blur-sm border border-white/10 overflow-hidden",
       className
     )}
     {...props}
@@ -62,7 +62,7 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
       ref={elementRef}
       className={cn(
-        "relative z-10 inline-flex h-10 items-center justify-center whitespace-nowrap rounded-xl px-6 text-lg font-semibold text-slate-300 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+        "relative z-10 inline-flex h-10 items-center justify-center whitespace-nowrap rounded-2xl px-6 text-lg font-semibold text-slate-300 ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 gap-2",
         "data-[state=active]:text-white",
         className
       )}
@@ -71,11 +71,13 @@ const TabsTrigger = React.forwardRef<
       {isActive && (
         <motion.div
           layoutId="active-tab-indicator"
-          className="absolute inset-0 z-0 rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg"
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="absolute inset-0 z-0 rounded-2xl bg-gradient-to-r from-purple-500 to-violet-600 shadow-lg"
+          transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
       )}
-      <span className="relative z-20">{children}</span>
+      <div className="relative z-20 flex items-center gap-2">
+        {children}
+      </div>
     </TabsPrimitive.Trigger>
   )
 })

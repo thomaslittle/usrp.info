@@ -18,8 +18,6 @@ A comprehensive, editable resource website for the Unscripted GTA5 roleplay serv
 - **Authentication**: Appwrite (server-side API calls)
 - **Database**: Appwrite Collections
 - **State Management**: Zustand for client state, React Query for server state
-- **Editor**: TipTap WYSIWYG editor (ready for implementation)
-- **Font**: Akrobat from CDN with proper fallbacks
 
 ## 🛠️ Setup Instructions
 
@@ -38,7 +36,7 @@ A comprehensive, editable resource website for the Unscripted GTA5 roleplay serv
 
 2. **Environment Configuration**
    The Appwrite configuration is already set up in the codebase:
-   - API Endpoint: `http://appwrite-qswcko448k448gwkg0o8ookk.38.45.67.215.sslip.io/v1`
+   - API Endpoint: `https://appwrite.usrp.info/v1`
    - Project ID: `684492280037c88a3856`
    - API Key: Configured in server files
 

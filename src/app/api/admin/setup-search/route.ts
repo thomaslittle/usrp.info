@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { ensureSearchIndexes, checkSearchHealth } from '@/lib/search-indexing';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     console.log('🚀 Starting search setup...');
     
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check search health
     const isHealthy = await checkSearchHealth();

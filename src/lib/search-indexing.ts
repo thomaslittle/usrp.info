@@ -133,7 +133,7 @@ function getCollectionForIndex(indexKey: string): string {
 export async function checkSearchHealth(): Promise<boolean> {
   try {
     // Test search functionality with a simple query
-    const testQuery = 'test';
+    // const testQuery = 'emergency'; // Unused variable removed
     
     // Test content search
     try {

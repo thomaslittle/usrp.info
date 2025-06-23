@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
+import { User } from '@/types';
 
 
 interface DepartmentConfig {
@@ -24,9 +25,12 @@ interface DepartmentLayoutProps {
     children: React.ReactNode;
     config: DepartmentConfig;
     currentPath?: string;
+    currentUser?: User | null;
 }
 
-export function DepartmentLayout({ children, config, currentPath }: DepartmentLayoutProps) {
+export function DepartmentLayout({ children, config, currentPath, currentUser }: DepartmentLayoutProps) {
+    const isAdmin = currentUser && ['admin', 'super_admin'].includes(currentUser.role);
+
     return (
         <div className="min-h-screen">
             {/* Header */}
@@ -68,25 +72,40 @@ export function DepartmentLayout({ children, config, currentPath }: DepartmentLa
             {/* Navigation Bar */}
             <nav className="sticky top-0 bg-gray-800/50 backdrop-blur-sm border-b border-gray-800 z-40">
                 <div className="container mx-auto px-6">
-                    <div className="flex items-center gap-2 py-4 overflow-x-auto">
-                        {config.routes.map((route) => {
-                            const isActive = currentPath === route.path;
-                            return (
-                                <Link key={route.path} href={route.path}>
-                                    <Button
-                                        variant={isActive ? "default" : "ghost"}
-                                        size="sm"
-                                        className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 font-light ${isActive
-                                            ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/25'
-                                            : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
-                                            }`}
-                                    >
-                                        <Icon icon={route.icon} className="h-4 w-4" />
-                                        {route.name}
-                                    </Button>
-                                </Link>
-                            );
-                        })}
+                    <div className="flex items-center justify-between py-4">
+                        <div className="flex items-center gap-2 overflow-x-auto">
+                            {config.routes.map((route) => {
+                                const isActive = currentPath === route.path;
+                                return (
+                                    <Link key={route.path} href={route.path}>
+                                        <Button
+                                            variant={isActive ? "default" : "ghost"}
+                                            size="sm"
+                                            className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 font-light ${isActive
+                                                ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/25'
+                                                : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+                                                }`}
+                                        >
+                                            <Icon icon={route.icon} className="h-4 w-4" />
+                                            {route.name}
+                                        </Button>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+
+                        {isAdmin && (
+                            <Link href="/dashboard">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex items-center gap-2 whitespace-nowrap transition-all duration-200 font-light border-yellow-500/50 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300"
+                                >
+                                    <Icon icon="heroicons:shield-check-16-solid" className="h-4 w-4" />
+                                    Admin Dashboard
+                                </Button>
+                            </Link>
+                        )}
                     </div>
                 </div>
             </nav>
@@ -111,9 +130,7 @@ export function DepartmentLayout({ children, config, currentPath }: DepartmentLa
                                     <p className="text-gray-400 text-sm font-light">{config.description}</p>
                                 </div>
                             </div>
-                            <p className="text-gray-400 text-sm leading-relaxed">
-                                Access comprehensive protocols, procedures, and reference materials.
-                            </p>
+
                         </div>
 
                         {/* Quick Links */}

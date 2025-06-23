@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     const documentId = ID.unique();
 
     // Build user data with only required fields and non-empty optional fields
-    const userDoc: any = {
+    const userDoc: Record<string, unknown> = {
       userId: documentId, // Set userId to match document ID
       email: userData.email,
       username: userData.username,
@@ -17,6 +17,10 @@ export async function POST(request: NextRequest) {
       createdAt: new Date(),
       isFTO: userData.isFTO || false,
       isSoloCleared: userData.isSoloCleared || false,
+      isWaterRescue: userData.isWaterRescue || false,
+      isCoPilotCert: userData.isCoPilotCert || false,
+      isAviationCert: userData.isAviationCert || false,
+      isPsychNeuro: userData.isPsychNeuro || false,
     };
 
     // Add optional fields only if they have values

@@ -6,6 +6,8 @@ import { DepartmentLayout } from '@/components/department-layout';
 import { departmentService, contentService, userService } from '@/lib/database';
 import { Content, Department, User } from '@/types';
 import { getCurrentUserFromRequest } from '@/lib/auth';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 const emsConfig = {
     name: 'EMS',
@@ -30,7 +32,7 @@ const emsConfig = {
 };
 
 interface EMSPageProps {
-    searchParams: { [key: string]: string | string[] | undefined };
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 async function getEMSContent(): Promise<{ content: Content[], department: Department | null, currentUser: User | null }> {
@@ -65,6 +67,7 @@ async function getEMSContent(): Promise<{ content: Content[], department: Depart
 }
 
 export default async function EMSPage({ searchParams }: EMSPageProps) {
+    const searchParamsData = await searchParams;
     const { content, department, currentUser } = await getEMSContent();
 
     // Check if user can edit content
@@ -99,7 +102,7 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
     }, {} as Record<string, Content[]>);
 
     return (
-        <DepartmentLayout config={emsConfig} currentPath="/ems">
+        <DepartmentLayout config={emsConfig} currentPath="/ems" currentUser={currentUser}>
             <div className="relative py-8">
                 <div className="absolute inset-0 -z-10">
                     <img src="/images/bg.webp" alt="background" className="object-cover w-full h-full" />
@@ -136,6 +139,16 @@ export default async function EMSPage({ searchParams }: EMSPageProps) {
                                     </Link>
                                 </div>
                             )} */}
+
+                            {/* Department Roster */}
+                            <section>
+                                <div className="flex items-center justify-between mb-6">
+                                    <h2 className="text-2xl font-bold text-white">Department Directory</h2>
+                                </div>
+                                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                                    <DepartmentRosterCard />
+                                </div>
+                            </section>
 
                             {/* Standard Operating Procedures */}
                             {contentByType.sop && contentByType.sop.length > 0 && (
@@ -267,7 +280,7 @@ function ContentCard({ content, fullWidth = false, canEdit = false }: ContentCar
         <div className={`bg-gray-800/50 border border-gray-800 rounded-lg p-6 hover:bg-gray-800/70 transition-colors ${fullWidth ? 'w-full' : ''}`}>
             <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white mb-2 uppercase tracking-wider">
+                    <h3 className="text-lg font-semibold text-white mb-2 uppercase">
                         <a href={href} className="hover:text-purple-400 transition-colors">
                             {content.title}
                         </a>
@@ -287,7 +300,7 @@ function ContentCard({ content, fullWidth = false, canEdit = false }: ContentCar
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="text-sm text-gray-400">
-                        v{content.version}
+                        v{content.version.toFixed(2)}
                     </div>
                     {canEdit && (
                         <Link href={`/dashboard/content/${content.$id}/edit`}>
@@ -300,9 +313,9 @@ function ContentCard({ content, fullWidth = false, canEdit = false }: ContentCar
             </div>
 
             <div className="text-sm text-gray-400 flex items-center justify-between">
-                <span className="capitalize">
-                    {content.type.replace('-', ' ')}
-                </span>
+                <p className="uppercase text-xs font-bold text-gray-400 tracking-wider">
+                    {content.type}
+                </p>
                 {content.publishedAt && (
                     <span>
                         {new Date(content.publishedAt).toLocaleDateString()}
@@ -311,4 +324,44 @@ function ContentCard({ content, fullWidth = false, canEdit = false }: ContentCar
             </div>
         </div>
     );
-} 
+}
+
+function DepartmentRosterCard() {
+    const href = `/ems/roster/department-roster`;
+
+    return (
+        <div className="bg-gray-800/50 border border-gray-800 rounded-lg p-6 hover:bg-gray-800/70 transition-colors">
+            <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-white mb-2 uppercase">
+                        <a href={href} className="hover:text-purple-400 transition-colors">
+                            Department Roster
+                        </a>
+                    </h3>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        <span className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-md">
+                            Personnel
+                        </span>
+                        <span className="px-2 py-1 text-xs font-medium bg-purple-500/20 text-purple-300 rounded-md">
+                            Directory
+                        </span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="text-sm text-gray-400">
+                        v1.00
+                    </div>
+                </div>
+            </div>
+
+            <div className="text-sm text-gray-400 flex items-center justify-between">
+                <p className="uppercase text-xs font-bold text-gray-400 tracking-wider">
+                    roster
+                </p>
+                <span>
+                    {new Date().toLocaleDateString()}
+                </span>
+            </div>
+        </div>
+    );
+}

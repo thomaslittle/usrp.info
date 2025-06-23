@@ -24,7 +24,7 @@ export default function DashboardNotFound() {
                         DASHBOARD PAGE NOT FOUND
                     </h2>
                     <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                        The dashboard page you're looking for doesn't exist or you don't have permission to access it. Let's get you back to your dashboard.
+                        The dashboard page you&apos;re looking for doesn&apos;t exist or you don&apos;t have permission to access it. Let&apos;s get you back to your dashboard.
                     </p>
                 </div>
 

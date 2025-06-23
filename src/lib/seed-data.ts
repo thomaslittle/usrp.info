@@ -1,5 +1,5 @@
 import { departmentService, contentService } from './database';
-import { ID } from 'appwrite';
+// import { databases, DATABASE_ID, COLLECTIONS } from './appwrite-server';
 
 export async function seedDatabase() {
   try {

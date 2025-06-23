@@ -259,7 +259,7 @@ export const contentService = {
     }
 
     // Update main content document
-    const updatedContent = await adminDatabases.updateDocument(DATABASE_ID, COLLECTIONS.CONTENT, contentId, updateData);
+    const updatedContent = await adminDatabases.updateDocument(DATABASE_ID, COLLECTIONS.CONTENT, contentId, updateData as Record<string, unknown>);
 
     // Create new version
     await versionService.createVersion(contentId, {

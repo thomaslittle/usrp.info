@@ -17,9 +17,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   userProfile: null,
   isLoading: true,
-  setUser: (user) => set({ user }),
-  setUserProfile: (userProfile) => set({ userProfile }),
-  setLoading: (isLoading) => set({ isLoading }),
+  setUser: (user: Models.User<Models.Preferences> | null) => set({ user }),
+  setUserProfile: (userProfile: User | null) => set({ userProfile }),
+  setLoading: (isLoading: boolean) => set({ isLoading }),
   refresh: () => {
     // Trigger a re-check by setting loading to true
     // The useAuth hook will detect this and re-run the auth check

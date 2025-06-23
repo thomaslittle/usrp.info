@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { departmentService } from '@/lib/database';
 import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const departments = await departmentService.list();
 

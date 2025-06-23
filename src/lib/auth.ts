@@ -3,6 +3,9 @@ import { adminClient, adminAccount } from './appwrite-server';
 import { UserRole } from '@/types';
 import { Models, OAuthProvider, Client, Account } from 'appwrite';
 import { NextRequest } from 'next/server';
+import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
+// import { userService } from './appwrite';
+import { User } from '@/types';
 
 export async function getCurrentUser(): Promise<Models.User<Models.Preferences> | null> {
   try {
@@ -12,22 +15,18 @@ export async function getCurrentUser(): Promise<Models.User<Models.Preferences> 
   }
 }
 
-// Server-side authentication for API routes
-export async function getCurrentUserFromRequest(request: NextRequest): Promise<Models.User<Models.Preferences> | null> {
+export async function getCurrentUserFromHeaders(headers: ReadonlyHeaders): Promise<Models.User<Models.Preferences> | null> {
   try {
-    // First, try to get session from cookies
-    const cookieHeader = request.headers.get('cookie');
+    const cookieHeader = headers.get('cookie');
     let sessionToken = null;
 
     if (cookieHeader) {
-      // Parse cookies to find Appwrite session cookies
       const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
         const [key, value] = cookie.trim().split('=');
         acc[key] = value;
         return acc;
       }, {} as Record<string, string>);
 
-      // Look for Appwrite session cookies in various formats
       const projectId = '684492280037c88a3856';
       const possibleSessionKeys = [
         `a_session_${projectId}`,
@@ -45,17 +44,13 @@ export async function getCurrentUserFromRequest(request: NextRequest): Promise<M
       }
     }
 
-    // If no session in cookies, try fallback headers (for localStorage sessions)
     if (!sessionToken) {
-      // Check for X-Fallback-Cookies header (Appwrite's fallback mechanism)
-      const fallbackCookies = request.headers.get('x-fallback-cookies');
-      
+      const fallbackCookies = headers.get('x-fallback-cookies');
       if (fallbackCookies) {
         sessionToken = fallbackCookies;
       }
       
-      // Also check for Authorization header
-      const authHeader = request.headers.get('authorization');
+      const authHeader = headers.get('authorization');
       if (authHeader && authHeader.startsWith('Bearer ')) {
         sessionToken = authHeader.substring(7);
       }
@@ -65,7 +60,6 @@ export async function getCurrentUserFromRequest(request: NextRequest): Promise<M
       return null;
     }
 
-    // Use the server client to validate the session
     const { Client: ServerClient, Account: ServerAccount } = await import('node-appwrite');
     
     const sessionClient = new ServerClient();
@@ -76,12 +70,29 @@ export async function getCurrentUserFromRequest(request: NextRequest): Promise<M
 
     const sessionAccount = new ServerAccount(sessionClient);
     
-    // Get the current user using the session
     return await sessionAccount.get();
   } catch (error) {
-    console.error('Error getting user from request:', error);
+    console.error('Error getting user from headers:', error);
     return null;
   }
+}
+
+// Server-side authentication for API routes
+export async function getCurrentUserFromRequest(request: Request): Promise<User | null> {
+    const user = await getCurrentUserFromHeaders(request.headers as unknown as ReadonlyHeaders);
+    if (!user) {
+        return null;
+    }
+
+    // This is a temporary adapter to match the User type
+    return {
+        $id: user.$id,
+        email: user.email,
+        username: user.name,
+        role: (user.prefs as any)?.role || 'viewer',
+        department: (user.prefs as any)?.department || 'ems',
+        createdAt: user.$createdAt,
+    } as User;
 }
 
 export async function clearExistingSessions() {

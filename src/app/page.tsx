@@ -1,14 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useAuth } from '@/hooks/use-auth';
-import { logout } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const AnimatedTabsContent = ({ value, children }: { value: string; children: React.ReactNode }) => {
@@ -28,14 +25,7 @@ const AnimatedTabsContent = ({ value, children }: { value: string; children: Rea
 };
 
 export default function HomePage() {
-  const { user, userProfile, isAuthenticated, isLoading } = useAuth();
-  const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState('public');
-
-  const handleLogout = async () => {
-    await logout();
-    router.refresh();
-  };
+  const [isClient, setIsClient] = useState(false);
 
   const departmentSections = {
     lspd: [
@@ -101,244 +91,234 @@ export default function HomePage() {
             </p>
           </div>
 
-          <Tabs defaultValue="public" onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:max-w-md sm:mx-auto mb-12">
+          <Tabs defaultValue="public" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sm:max-w-md sm:mx-auto mb-12 rounded-full">
               <TabsTrigger value="public" className="uppercase">Public</TabsTrigger>
               <TabsTrigger value="whitelist" className="uppercase">Whitelist</TabsTrigger>
             </TabsList>
             <AnimatePresence mode="wait">
-              <AnimatedTabsContent key={activeTab} value={activeTab}>
-                {activeTab === 'public' ? (
-                  <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
+              <AnimatedTabsContent key="public" value="public">
+                <div className="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-4">
 
-                    {/* EMS Department - Active */}
-                    <div className="group hover-lift">
-                      <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
-                        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  {/* EMS Department - Active */}
+                  <div className="group hover-lift">
+                    <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                        <CardHeader className="relative pb-4">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="p-4 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
-                              <Icon icon="heroicons:heart-16-solid" className="h-8 w-8 text-white" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                              <span className="text-xs text-green-400 font-semibold">ACTIVE</span>
-                            </div>
+                      <CardHeader className="relative pb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="p-4 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
+                            <Icon icon="heroicons:heart-16-solid" className="h-8 w-8 text-white" />
                           </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-green-400 font-semibold">ACTIVE</span>
+                          </div>
+                        </div>
 
-                          <CardTitle className="text-2xl font-bold text-white mb-2">
-                            EMS
-                          </CardTitle>
-                          <p className="text-sm text-purple-300 font-semibold tracking-wide">
-                            EMS/TacMed Department
+                        <CardTitle className="text-2xl font-bold text-white mb-2">
+                          EMS
+                        </CardTitle>
+                        <p className="text-sm text-purple-300 font-semibold tracking-wide">
+                          EMS/TacMed Department
+                        </p>
+                      </CardHeader>
+
+                      <CardContent className="relative flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <p className="text-slate-300 leading-relaxed">
+                            Advanced medical protocols, emergency response procedures, communication systems, and staff management tools.
                           </p>
-                        </CardHeader>
 
-                        <CardContent className="relative flex flex-col flex-grow">
-                          <div className="flex-grow">
-                            <p className="text-slate-300 leading-relaxed">
-                              Advanced medical protocols, emergency response procedures, communication systems, and staff management tools.
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4 text-sm mt-6">
-                              {[
-                                { icon: "heroicons:document-text-16-solid", label: "SOPs", color: "text-purple-400" },
-                                { icon: "heroicons:megaphone-16-solid", label: "10-Codes", color: "text-purple-400" },
-                                { icon: "heroicons:clipboard-document-list-16-solid", label: "Protocols", color: "text-purple-400" },
-                                { icon: "heroicons:user-group-16-solid", label: "Roster", color: "text-purple-400" }
-                              ].map((item, idx) => (
-                                <div key={idx} className="flex items-center text-slate-300 font-medium hover:text-white transition-colors">
-                                  <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
-                                  {item.label}
-                                </div>
-                              ))}
-                            </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm mt-6">
+                            {[
+                              { icon: "heroicons:document-text-16-solid", label: "SOPs", color: "text-purple-400" },
+                              { icon: "heroicons:megaphone-16-solid", label: "10-Codes", color: "text-purple-400" },
+                              { icon: "heroicons:clipboard-document-list-16-solid", label: "Protocols", color: "text-purple-400" },
+                              { icon: "heroicons:user-group-16-solid", label: "Roster", color: "text-purple-400" }
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-center text-slate-300 font-medium hover:text-white transition-colors">
+                                <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
+                                {item.label}
+                              </div>
+                            ))}
                           </div>
+                        </div>
 
-                          <div className="space-y-4 pt-6 mt-auto">
-                            <Link href="/ems" className="block">
-                              <Button className="w-full bg-gradient-to-r cursor-pointer from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white border-0 shadow-lg hover:shadow-xl font-semibold rounded-xl transition-all duration-300">
-                                <Icon icon="heroicons:arrow-right-16-solid" className="mr-2 h-4 w-4" />
-                                Access Portal
+                        <div className="space-y-4 pt-6 mt-auto">
+                          <Link href="/ems" className="block">
+                            <Button className="w-full bg-gradient-to-r cursor-pointer from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white border-0 shadow-lg hover:shadow-xl font-semibold rounded-xl transition-all duration-300">
+                              <Icon icon="heroicons:arrow-right-16-solid" className="mr-2 h-4 w-4" />
+                              Access Portal
+                            </Button>
+                          </Link>
+
+                          <div className="grid grid-cols-2 gap-3">
+                            <Link href="/ems/sops">
+                              <Button variant="outline" size="sm" className="w-full glass-effect border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-medium rounded-lg transition-all duration-300">
+                                SOPs
                               </Button>
                             </Link>
-
-                            <div className="grid grid-cols-2 gap-3">
-                              <Link href="/ems/sops">
-                                <Button variant="outline" size="sm" className="w-full glass-effect border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-medium rounded-lg transition-all duration-300">
-                                  SOPs
-                                </Button>
-                              </Link>
-                              <Link href="/ems">
-                                <Button variant="outline" size="sm" className="w-full glass-effect border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-medium rounded-lg transition-all duration-300">
-                                  Guides
-                                </Button>
-                              </Link>
-                            </div>
+                            <Link href="/ems">
+                              <Button variant="outline" size="sm" className="w-full glass-effect border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-medium rounded-lg transition-all duration-300">
+                                Guides
+                              </Button>
+                            </Link>
                           </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* LSPD - Coming Soon */}
-                    <div className="group hover-lift opacity-60">
-                      <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
-
-                        <CardHeader className="relative pb-4">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
-                              <Icon icon="heroicons:shield-check-16-solid" className="h-8 w-8 text-white" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                              <span className="text-xs text-yellow-400 font-semibold">SOON</span>
-                            </div>
-                          </div>
-
-                          <CardTitle className="text-2xl font-bold text-white mb-2">
-                            LSPD
-                          </CardTitle>
-                          <p className="text-sm text-blue-300 font-semibold tracking-wide">
-                            LSPD Operations
-                          </p>
-                        </CardHeader>
-
-                        <CardContent className="relative flex flex-col flex-grow">
-                          <div className="flex-grow">
-                            <p className="text-slate-400 leading-relaxed">
-                              Law enforcement procedures, patrol protocols, investigation guidelines, and departmental management systems.
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4 text-sm mt-6">
-                              {departmentSections.lspd.map((item, idx) => (
-                                <div key={idx} className="flex items-center text-slate-500 font-medium">
-                                  <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
-                                  {item.label}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
-                            <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
-                            Coming Soon
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* BCSO - Coming Soon */}
-                    <div className="group hover-lift opacity-60">
-                      <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
-                        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-600/5"></div>
-
-                        <CardHeader className="relative pb-4">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg">
-                              <Icon icon="heroicons:shield-exclamation-16-solid" className="h-8 w-8 text-white" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                              <span className="text-xs text-yellow-400 font-semibold">SOON</span>
-                            </div>
-                          </div>
-
-                          <CardTitle className="text-2xl font-bold text-white mb-2">
-                            BCSO
-                          </CardTitle>
-                          <p className="text-sm text-orange-300 font-semibold tracking-wide">
-                            BCSO Operations
-                          </p>
-                        </CardHeader>
-
-                        <CardContent className="relative flex flex-col flex-grow">
-                          <div className="flex-grow">
-                            <p className="text-slate-400 leading-relaxed">
-                              County law enforcement, specialized units, rural patrol protocols, and sheriff department administration.
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4 text-sm mt-6">
-                              {departmentSections.bcso.map((item, idx) => (
-                                <div key={idx} className="flex items-center text-slate-500 font-medium">
-                                  <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
-                                  {item.label}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
-                            <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
-                            Coming Soon
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* DOJ */}
-                    <div className="group hover-lift opacity-60">
-                      <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-gray-600/5"></div>
-
-                        <CardHeader className="relative pb-4">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="p-4 bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl shadow-lg">
-                              <Icon icon="heroicons:building-library-16-solid" className="h-8 w-8 text-white" />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                              <span className="text-xs text-yellow-400 font-semibold">SOON</span>
-                            </div>
-                          </div>
-
-                          <CardTitle className="text-2xl font-bold text-white mb-2">
-                            DOJ
-                          </CardTitle>
-                          <p className="text-sm text-slate-300 font-semibold tracking-wide">
-                            Department of Justice
-                          </p>
-                        </CardHeader>
-
-                        <CardContent className="relative flex flex-col flex-grow">
-                          <div className="flex-grow">
-                            <p className="text-slate-400 leading-relaxed">
-                              Legal frameworks, court procedures, case law repository, and official judicial documentation.
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-4 text-sm mt-6">
-                              {[
-                                { icon: "heroicons:scale-16-solid", label: "Laws", color: "text-slate-400" },
-                                { icon: "heroicons:gavel-16-solid", label: "Case Law", color: "text-slate-400" },
-                                { icon: "heroicons:book-open-16-solid", label: "Statutes", color: "text-slate-400" },
-                                { icon: "heroicons:user-group-16-solid", label: "Members", color: "text-slate-400" }
-                              ].map((item, idx) => (
-                                <div key={idx} className="flex items-center text-slate-500 font-medium">
-                                  <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
-                                  {item.label}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
-                            <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
-                            Coming Soon
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-center py-20">
-                    <Icon icon="heroicons:lock-closed-16-solid" className="h-16 w-16 text-purple-400/50 mb-6" />
-                    <h3 className="text-2xl font-bold text-white mb-2">Whitelist Server Content</h3>
-                    <p className="text-slate-400 max-w-md">
-                      This area is reserved for whitelisted departments and content. Please connect with your department lead for access.
-                    </p>
+
+                  {/* LSPD - Coming Soon */}
+                  <div className="group hover-lift opacity-60">
+                    <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5"></div>
+
+                      <CardHeader className="relative pb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
+                            <Icon icon="heroicons:shield-check-16-solid" className="h-8 w-8 text-white" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-yellow-400 font-semibold">SOON</span>
+                          </div>
+                        </div>
+
+                        <CardTitle className="text-2xl font-bold text-white mb-2">
+                          LSPD
+                        </CardTitle>
+                        <p className="text-sm text-blue-300 font-semibold tracking-wide">
+                          LSPD Operations
+                        </p>
+                      </CardHeader>
+
+                      <CardContent className="relative flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <p className="text-slate-400 leading-relaxed">
+                            Law enforcement procedures, patrol protocols, investigation guidelines, and departmental management systems.
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-4 text-sm mt-6">
+                            {departmentSections.lspd.map((item, idx) => (
+                              <div key={idx} className="flex items-center text-slate-500 font-medium">
+                                <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
+                                {item.label}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
+                          <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
                   </div>
-                )}
+
+                  {/* BCSO - Coming Soon */}
+                  <div className="group hover-lift opacity-60">
+                    <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
+                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-600/5"></div>
+
+                      <CardHeader className="relative pb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="p-4 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl shadow-lg">
+                            <Icon icon="heroicons:shield-exclamation-16-solid" className="h-8 w-8 text-white" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-yellow-400 font-semibold">SOON</span>
+                          </div>
+                        </div>
+
+                        <CardTitle className="text-2xl font-bold text-white mb-2">
+                          BCSO
+                        </CardTitle>
+                        <p className="text-sm text-orange-300 font-semibold tracking-wide">
+                          BCSO Operations
+                        </p>
+                      </CardHeader>
+
+                      <CardContent className="relative flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <p className="text-slate-400 leading-relaxed">
+                            County law enforcement, specialized units, rural patrol protocols, and sheriff department administration.
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-4 text-sm mt-6">
+                            {departmentSections.bcso.map((item, idx) => (
+                              <div key={idx} className="flex items-center text-slate-500 font-medium">
+                                <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
+                                {item.label}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
+                          <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* DOJ */}
+                  <div className="group hover-lift opacity-60">
+                    <Card className="stat-card h-full border-0 overflow-hidden flex flex-col">
+                      <div className="absolute inset-0 bg-gradient-to-br from-slate-500/5 to-gray-600/5"></div>
+
+                      <CardHeader className="relative pb-4">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="p-4 bg-gradient-to-br from-slate-500 to-gray-600 rounded-2xl shadow-lg">
+                            <Icon icon="heroicons:building-library-16-solid" className="h-8 w-8 text-white" />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
+                            <span className="text-xs text-yellow-400 font-semibold">SOON</span>
+                          </div>
+                        </div>
+
+                        <CardTitle className="text-2xl font-bold text-white mb-2">
+                          DOJ
+                        </CardTitle>
+                        <p className="text-sm text-slate-300 font-semibold tracking-wide">
+                          Department of Justice
+                        </p>
+                      </CardHeader>
+
+                      <CardContent className="relative flex flex-col flex-grow">
+                        <div className="flex-grow">
+                          <p className="text-slate-400 leading-relaxed">
+                            Legal frameworks, court procedures, case law repository, and official judicial documentation.
+                          </p>
+
+                          <div className="grid grid-cols-2 gap-4 text-sm mt-6">
+                            {[
+                              { icon: "heroicons:scale-16-solid", label: "Laws", color: "text-slate-400" },
+                              { icon: "heroicons:gavel-16-solid", label: "Case Law", color: "text-slate-400" },
+                              { icon: "heroicons:book-open-16-solid", label: "Statutes", color: "text-slate-400" },
+                              { icon: "heroicons:user-group-16-solid", label: "Members", color: "text-slate-400" }
+                            ].map((item, idx) => (
+                              <div key={idx} className="flex items-center text-slate-500 font-medium">
+                                <Icon icon={item.icon} className={`h-4 w-4 mr-2 ${item.color}`} />
+                                {item.label}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <Button disabled className="w-full bg-slate-700/50 text-slate-400 cursor-not-allowed font-medium rounded-xl mt-auto">
+                          <Icon icon="heroicons:clock-16-solid" className="mr-2 h-4 w-4" />
+                          Coming Soon
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
               </AnimatedTabsContent>
             </AnimatePresence>
           </Tabs>

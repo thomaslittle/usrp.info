@@ -8,36 +8,77 @@ export async function GET(request: NextRequest) {
     // Get current user from auth
     const currentUser = await getCurrentUserFromRequest(request);
     
-    // Temporarily bypass authentication for dashboard to work
-    // TODO: Fix session token authentication issue
-    const mockUser = currentUser || {
-      email: 'tomlit@gmail.com',
-      $id: '6847898f003b2fb7e2d3'
-    };
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Get user profile from database
-    const userResult = await adminDatabases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.USERS,
-      [Query.equal('email', mockUser.email)]
-    );
-
-    const userData = userResult.documents[0];
-    if (!userData) {
-      return NextResponse.json(
-        { error: 'User profile not found' },
-        { status: 404 }
+    let userData;
+    try {
+      const userResult = await adminDatabases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.USERS,
+        [Query.equal('email', currentUser.email)]
       );
+      
+      userData = userResult.documents[0];
+    } catch (userError) {
+      console.error('Error fetching user:', userError);
+      // Return default dashboard data if user lookup fails
+      return NextResponse.json({
+        user: {
+          username: 'User',
+          email: currentUser.email,
+          role: 'viewer',
+          department: 'ems'
+        },
+        stats: {
+          totalContent: 0,
+          publishedContent: 0,
+          draftContent: 0,
+          recentActivity: 0
+        },
+        recentContent: [],
+        recentActivity: []
+      });
+    }
+
+    if (!userData) {
+      // Return default dashboard data if user not found
+      return NextResponse.json({
+        user: {
+          username: 'User',
+          email: currentUser.email,
+          role: 'viewer',
+          department: 'ems'
+        },
+        stats: {
+          totalContent: 0,
+          publishedContent: 0,
+          draftContent: 0,
+          recentActivity: 0
+        },
+        recentContent: [],
+        recentActivity: []
+      });
     }
 
     // Get the department document to find the actual department ID
-    const departmentResult = await adminDatabases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.DEPARTMENTS,
-      [Query.equal('slug', userData.department)]
-    );
+    let department: any = null;
+    let allContent: any[] = [];
+    let recentActivity: any[] = [];
+    
+    try {
+      const departmentResult = await adminDatabases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.DEPARTMENTS,
+        [Query.equal('slug', userData.department)]
+      );
+      department = departmentResult.documents[0];
+    } catch (deptError) {
+      console.error('Error fetching department:', deptError);
+    }
 
-    const department = departmentResult.documents[0];
     if (!department) {
       return NextResponse.json({
         user: userData,
@@ -53,30 +94,37 @@ export async function GET(request: NextRequest) {
     }
 
     // Get all content for the department
-    const allContentResult = await adminDatabases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.CONTENT,
-      [
-        Query.equal('departmentId', department.$id),
-        Query.orderDesc('updatedAt')
-      ]
-    );
+    try {
+      const allContentResult = await adminDatabases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.CONTENT,
+        [
+          Query.equal('departmentId', department.$id),
+          Query.orderDesc('updatedAt')
+        ]
+      );
+      allContent = allContentResult.documents;
+    } catch (contentError) {
+      console.error('Error fetching content:', contentError);
+    }
 
-    const allContent = allContentResult.documents;
     const publishedContent = allContent.filter(content => content.status === 'published');
     const draftContent = allContent.filter(content => content.status === 'draft');
 
     // Get recent activity
-    const activityResult = await adminDatabases.listDocuments(
-      DATABASE_ID,
-      COLLECTIONS.ACTIVITY_LOGS,
-      [
-        Query.orderDesc('$createdAt'),
-        Query.limit(10)
-      ]
-    );
-
-    const recentActivity = activityResult.documents;
+    try {
+      const activityResult = await adminDatabases.listDocuments(
+        DATABASE_ID,
+        COLLECTIONS.ACTIVITY_LOGS,
+        [
+          Query.orderDesc('$createdAt'),
+          Query.limit(10)
+        ]
+      );
+      recentActivity = activityResult.documents;
+    } catch (activityError) {
+      console.error('Error fetching activity:', activityError);
+    }
 
     return NextResponse.json({
       user: userData,

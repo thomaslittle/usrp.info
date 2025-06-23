@@ -19,10 +19,10 @@ export async function GET() {
       status: user.status || 'Unknown',
       fto: user.isFTO || false,
       soloCleared: user.isSoloCleared || false,
-      waterRescue: false, // These fields don't exist in the database yet
-      coPilot: false,
-      aviation: false,
-      psychNeuro: false,
+      waterRescue: user.isWaterRescue || false,
+      coPilot: user.isCoPilotCert || false,
+      aviation: user.isAviationCert || false,
+      psychNeuro: user.isPsychNeuro || false,
       ftoCert: user.isFTO || false
     }));
 

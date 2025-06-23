@@ -4,11 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getAppwriteSessionToken } from '@/lib/utils';
 import { ContentVersion } from '@/types';
 
@@ -45,10 +42,10 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
     const [restoreLoading, setRestoreLoading] = useState(false);
 
     useEffect(() => {
-        fetchVersions();
+        fetchVersions(contentId);
     }, [contentId]);
 
-    const fetchVersions = async () => {
+    const fetchVersions = async (contentId: string) => {
         try {
             setLoading(true);
             // Get session token from localStorage for authentication
@@ -71,13 +68,13 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
         }
     };
 
-    const handleCompareVersions = async (fromVersion: number, toVersion: number) => {
+    const compareVersions = async (version1Id: string, version2Id: string, contentId: string) => {
         try {
             // Get session token from localStorage for authentication
             const sessionToken = getAppwriteSessionToken();
 
             const response = await fetch(
-                `/api/content/${contentId}/versions/compare?from=${fromVersion}&to=${toVersion}`,
+                `/api/content/${contentId}/versions/compare?from=${version1Id}&to=${version2Id}`,
                 {
                     headers: {
                         ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
@@ -97,7 +94,7 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
             }
 
             setComparison(comparisonData);
-            setSelectedVersions({ from: fromVersion, to: toVersion });
+            setSelectedVersions({ from: parseInt(version1Id), to: parseInt(version2Id) });
         } catch (error) {
             console.error('Error comparing versions:', error);
             alert(`Failed to compare versions: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -129,7 +126,7 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
             setVersionToRestore(null);
 
             // Refresh versions and notify parent
-            await fetchVersions();
+            await fetchVersions(contentId);
             onVersionRestored?.();
 
             // Show success message
@@ -291,42 +288,28 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
 
                                         <div className="flex items-center gap-2 ml-4">
                                             {!version.isCurrentVersion && (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="text-slate-300 hover:text-white hover:bg-slate-600"
-                                                                onClick={() => {
-                                                                    setVersionToRestore(version.version);
-                                                                    setRestoreDialogOpen(true);
-                                                                }}
-                                                            >
-                                                                <Icon icon="heroicons:arrow-uturn-left" className="h-4 w-4" />
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>Restore this version</TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-slate-300 hover:text-white hover:bg-slate-600"
+                                                    onClick={() => {
+                                                        setVersionToRestore(version.version);
+                                                        setRestoreDialogOpen(true);
+                                                    }}
+                                                >
+                                                    <Icon icon="heroicons:arrow-uturn-left" className="h-4 w-4" />
+                                                </Button>
                                             )}
 
                                             {index < versions.length - 1 && (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="text-slate-300 hover:text-white hover:bg-slate-600"
-                                                                onClick={() => handleCompareVersions(version.version, versions[index + 1].version)}
-                                                            >
-                                                                <Icon icon="heroicons:arrows-right-left" className="h-4 w-4" />
-                                                            </Button>
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>Compare with previous version</TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="text-slate-300 hover:text-white hover:bg-slate-600"
+                                                    onClick={() => compareVersions(version.version.toString(), versions[index + 1].version.toString(), contentId)}
+                                                >
+                                                    <Icon icon="heroicons:arrows-right-left" className="h-4 w-4" />
+                                                </Button>
                                             )}
                                         </div>
                                     </div>
@@ -381,7 +364,7 @@ export function VersionHistory({ contentId, onVersionRestored }: VersionHistoryP
                                         {comparison.diffs.map((diff: any, index: number) => (
                                             <div key={index} className="border border-slate-600 rounded-lg p-3">
                                                 <div className="flex items-center gap-2 mb-2">
-                                                    <span className="text-white font-medium capitalize">{diff.field}</span>
+                                                    <span className="text-white font-medium uppercase">{diff.field}</span>
                                                     <Badge className={
                                                         diff.changeType === 'added' ? 'bg-green-500/20 text-green-400' :
                                                             diff.changeType === 'removed' ? 'bg-red-500/20 text-red-400' :

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Icon } from '@iconify/react';
+// import { Icon } from '@iconify/react';
 import { getDiscordUserInfo } from '@/lib/auth';
 import { User } from '@/types';
 

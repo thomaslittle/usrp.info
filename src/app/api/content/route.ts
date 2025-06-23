@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
-import { Query } from 'node-appwrite';
+// Database operations handled by service layer
 import { getCurrentUserFromRequest } from '@/lib/auth';
 import { userService, departmentService, contentService, logActivity, notificationService } from '@/lib/database';
 

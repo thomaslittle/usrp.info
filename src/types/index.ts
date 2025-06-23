@@ -17,6 +17,10 @@ export interface User {
   discordUsername?: string;
   isFTO?: boolean;
   isSoloCleared?: boolean;
+  isWaterRescue?: boolean;
+  isCoPilotCert?: boolean;
+  isAviationCert?: boolean;
+  isPsychNeuro?: boolean;
   lastLogin?: string;
   createdAt: string;
   $createdAt: string;
@@ -62,7 +66,7 @@ export interface ContentVersion {
   version: number;
   title: string;
   slug: string;
-  content: string; // JSON string for rich text content
+  content: unknown; // Changed from any
   type: 'sop' | 'guide' | 'announcement' | 'resource' | 'training' | 'policy';
   status: 'draft' | 'published' | 'archived';
   tags?: string[];

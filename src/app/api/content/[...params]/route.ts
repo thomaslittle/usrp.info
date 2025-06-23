@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { contentService, departmentService } from '@/lib/database';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     params: string[];
-  };
+  }>;
 }
 
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(request: NextRequest, context: RouteParams) {
+  const params = await context.params;
   try {
     const [departmentSlug, ...rest] = params.params;
     
@@ -46,7 +47,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       // If not found by slug, try as content type
       const validTypes = ['sop', 'guide', 'announcement', 'resource', 'training'];
       if (validTypes.includes(param)) {
-        const contentByType = await contentService.getByType(department.$id, param as any);
+        const contentByType = await contentService.getByType(department.$id, param as 'sop' | 'guide' | 'announcement' | 'resource' | 'training');
         return NextResponse.json({ content: contentByType, department });
       }
 

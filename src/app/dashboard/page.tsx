@@ -6,8 +6,7 @@ import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Preloader } from '@/components/ui/preloader';
-import { useAuth } from '@/hooks/use-auth';
-import { getAppwriteSessionToken, cn } from '@/lib/utils';
+import { getAppwriteSessionToken } from '@/lib/utils';
 import { Content, ActivityLog, User } from '@/types';
 
 interface DashboardStats {
@@ -118,341 +117,253 @@ export default function DashboardPage() {
     const canManageUsers = user && ['admin', 'super_admin'].includes(user.role);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900">
-            {/* Header Section */}
-            <div className="px-6 pt-8 pb-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
-                    <div className="space-y-4">
-                        <h1 className="text-4xl lg:text-5xl font-bold text-white tracking-tight font-akrobat">
-                            Welcome back, <span className="bg-gradient-to-r from-purple-400 to-violet-400 bg-clip-text text-transparent">{user?.username}</span>
-                        </h1>
-                        <div className="flex flex-wrap items-center gap-3">
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-purple-500/20 to-violet-500/20 border border-purple-500/30">
-                                <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                                <span className="text-purple-300 font-semibold text-sm">
-                                    {user?.department?.toUpperCase()} DEPARTMENT
-                                </span>
-                            </div>
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30">
-                                <Icon icon="heroicons:shield-check-16-solid" className="h-3 w-3 text-blue-400" />
-                                <span className="text-blue-300 font-semibold text-sm">
-                                    {user?.role?.replace('_', ' ').toUpperCase()} ACCESS
-                                </span>
-                            </div>
+        <div className="relative py-8">
+            <div className="container mx-auto px-6 lg:px-8">
+                {/* Header with improved spacing and styling */}
+                <div className="mb-12">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                        <div>
+                            <h1 className="text-4xl font-bold text-white mb-3 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                                Dashboard Overview
+                            </h1>
+                            <p className="text-xl text-gray-300 flex items-center gap-2">
+                                <Icon icon="heroicons:hand-raised-16-solid" className="h-5 w-5 text-purple-400" />
+                                Welcome back, <span className="font-semibold text-white">{user.username}</span>
+                            </p>
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="flex flex-wrap items-center gap-4">
+                            {canManageContent && (
+                                <Button
+                                    asChild
+                                    className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-purple-500/40 hover:scale-105"
+                                >
+                                    <Link href="/dashboard/content/new" className="flex items-center gap-2">
+                                        <Icon icon="heroicons:plus-16-solid" className="h-4 w-4" />
+                                        Create Content
+                                    </Link>
+                                </Button>
+                            )}
+                            <Button
+                                asChild
+                                variant="outline"
+                                className="border-gray-600 hover:border-purple-500 hover:bg-purple-500/10 transition-all duration-300"
+                            >
+                                <Link href="/dashboard/content" className="flex items-center gap-2">
+                                    <Icon icon="heroicons:document-text-16-solid" className="h-4 w-4" />
+                                    Manage Content
+                                </Link>
+                            </Button>
+                            {canManageUsers && (
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="border-gray-600 hover:border-sky-500 hover:bg-sky-500/10 transition-all duration-300"
+                                >
+                                    <Link href="/dashboard/users" className="flex items-center gap-2">
+                                        <Icon icon="heroicons:users-16-solid" className="h-4 w-4" />
+                                        Manage Users
+                                    </Link>
+                                </Button>
+                            )}
                         </div>
                     </div>
+                </div>
 
-                    {canManageContent && (
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <Link href="/dashboard/content">
+                {/* Enhanced Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 group">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-400 mb-1">Total Content</p>
+                                    <p className="text-3xl font-bold text-white group-hover:text-purple-300 transition-colors duration-300">
+                                        {stats.totalContent}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">All departments</p>
+                                </div>
+                                <div className="bg-purple-500/20 p-4 rounded-xl group-hover:bg-purple-500/30 transition-colors duration-300">
+                                    <Icon icon="heroicons:document-text-16-solid" className="h-6 w-6 text-purple-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm hover:border-green-500/50 transition-all duration-300 group">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-400 mb-1">Published</p>
+                                    <p className="text-3xl font-bold text-white group-hover:text-green-300 transition-colors duration-300">
+                                        {stats.publishedContent}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">Live content</p>
+                                </div>
+                                <div className="bg-green-500/20 p-4 rounded-xl group-hover:bg-green-500/30 transition-colors duration-300">
+                                    <Icon icon="heroicons:check-circle-16-solid" className="h-6 w-6 text-green-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 group">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-400 mb-1">Draft</p>
+                                    <p className="text-3xl font-bold text-white group-hover:text-yellow-300 transition-colors duration-300">
+                                        {stats.draftContent}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">In progress</p>
+                                </div>
+                                <div className="bg-yellow-500/20 p-4 rounded-xl group-hover:bg-yellow-500/30 transition-colors duration-300">
+                                    <Icon icon="heroicons:pencil-16-solid" className="h-6 w-6 text-yellow-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm hover:border-blue-500/50 transition-all duration-300 group">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm font-medium text-gray-400 mb-1">Recent Activity</p>
+                                    <p className="text-3xl font-bold text-white group-hover:text-blue-300 transition-colors duration-300">
+                                        {stats.recentActivity}
+                                    </p>
+                                    <p className="text-xs text-gray-500 mt-1">Last 7 days</p>
+                                </div>
+                                <div className="bg-blue-500/20 p-4 rounded-xl group-hover:bg-blue-500/30 transition-colors duration-300">
+                                    <Icon icon="heroicons:bolt-16-solid" className="h-6 w-6 text-blue-400" />
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Enhanced Recent Content */}
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm">
+                        <CardHeader className="pb-4">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-white flex items-center gap-3">
+                                    <div className="bg-purple-500/20 p-2 rounded-lg">
+                                        <Icon icon="heroicons:document-text-16-solid" className="h-5 w-5 text-purple-400" />
+                                    </div>
+                                    Recent Content
+                                </CardTitle>
                                 <Button
-                                    variant="outline"
-                                    className="backdrop-blur-sm bg-white/5 border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-semibold rounded-2xl transition-all duration-300 h-12 px-6"
+                                    asChild
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-purple-400 hover:text-purple-300 hover:bg-purple-500/10"
                                 >
-                                    <Icon icon="heroicons:document-text-16-solid" className="mr-2 h-4 w-4" />
-                                    Manage Content
+                                    <Link href="/dashboard/content">View All</Link>
                                 </Button>
-                            </Link>
-                            <Link href="/dashboard/content/new">
-                                <Button className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white border-0 shadow-xl font-semibold rounded-2xl transition-all duration-300 hover:scale-105 h-12 px-6">
-                                    <Icon icon="heroicons:plus-16-solid" className="mr-2 h-4 w-4" />
-                                    Create Content
-                                </Button>
-                            </Link>
-                        </div>
-                    )}
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl overflow-hidden group hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                        <CardContent className="p-6 relative">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl shadow-lg">
-                                    <Icon icon="heroicons:document-text-16-solid" className="h-6 w-6 text-white" />
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            {recentContent.length === 0 ? (
+                                <div className="text-center py-8">
+                                    <Icon icon="heroicons:document-text-16-solid" className="h-12 w-12 mx-auto mb-4 text-gray-500" />
+                                    <p className="text-gray-400">No recent content</p>
                                 </div>
-                                <span className="text-xs font-semibold text-slate-400 tracking-wider">TOTAL</span>
-                            </div>
-                            <div className="space-y-1">
-                                <div className="text-3xl font-bold text-white">{stats.totalContent}</div>
-                                <p className="text-sm text-slate-400 font-medium">Content Items</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl overflow-hidden group hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                        <CardContent className="p-6 relative">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
-                                    <Icon icon="heroicons:eye-16-solid" className="h-6 w-6 text-white" />
-                                </div>
-                                <span className="text-xs font-semibold text-slate-400 tracking-wider">LIVE</span>
-                            </div>
-                            <div className="space-y-1">
-                                <div className="text-3xl font-bold text-white">{stats.publishedContent}</div>
-                                <p className="text-sm text-slate-400 font-medium">Published</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl overflow-hidden group hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                        <CardContent className="p-6 relative">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-lg">
-                                    <Icon icon="heroicons:pencil-16-solid" className="h-6 w-6 text-white" />
-                                </div>
-                                <span className="text-xs font-semibold text-slate-400 tracking-wider">DRAFT</span>
-                            </div>
-                            <div className="space-y-1">
-                                <div className="text-3xl font-bold text-white">{stats.draftContent}</div>
-                                <p className="text-sm text-slate-400 font-medium">In Progress</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl overflow-hidden group hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                        <CardContent className="p-6 relative">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl shadow-lg">
-                                    <Icon icon="heroicons:bolt-16-solid" className="h-6 w-6 text-white" />
-                                </div>
-                                <span className="text-xs font-semibold text-slate-400 tracking-wider">WEEK</span>
-                            </div>
-                            <div className="space-y-1">
-                                <div className="text-3xl font-bold text-white">{stats.recentActivity}</div>
-                                <p className="text-sm text-slate-400 font-medium">Activities</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="px-6 pb-8">
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    {/* Recent Content */}
-                    <div className="xl:col-span-2">
-                        <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl h-full">
-                            <CardHeader className="p-6 pb-4">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-white flex items-center gap-3 font-bold text-xl font-akrobat">
-                                        <div className="p-2 bg-gradient-to-br from-purple-500 to-violet-600 rounded-2xl">
-                                            <Icon icon="heroicons:document-text-16-solid" className="h-5 w-5 text-white" />
-                                        </div>
-                                        Recent Content
-                                    </CardTitle>
-                                    {canManageContent && (
-                                        <Link href="/dashboard/content">
-                                            <Button variant="outline" size="sm" className="backdrop-blur-sm bg-white/5 border-purple-500/30 text-purple-300 hover:bg-purple-500/20 hover:border-purple-400 font-medium rounded-2xl transition-all duration-300">
-                                                <Icon icon="heroicons:arrow-top-right-on-square-16-solid" className="mr-2 h-3 w-3" />
-                                                View All
-                                            </Button>
-                                        </Link>
-                                    )}
-                                </div>
-                            </CardHeader>
-                            <CardContent className="px-6 pb-6">
-                                <div className="space-y-3">
-                                    {recentContent.length > 0 ? (
-                                        recentContent.slice(0, 5).map((content, index) => (
-                                            <div key={content.$id} className="group">
-                                                <div className="backdrop-blur-sm bg-white/5 p-5 rounded-2xl hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-purple-500/30">
-                                                    <div className="flex items-start justify-between gap-4">
-                                                        <div className="flex-1 min-w-0">
-                                                            <h3 className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors text-lg">
-                                                                {content.title}
-                                                            </h3>
-                                                            <p className="text-sm text-slate-400 mt-2 line-clamp-2 leading-relaxed">
-                                                                {content.type?.replace('_', ' ').toUpperCase()} • {content.tags?.join(', ') || 'No tags'}
-                                                            </p>
-                                                            <div className="flex items-center gap-4 mt-4 text-xs">
-                                                                <span className={cn(
-                                                                    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border font-medium",
-                                                                    content.status === 'published'
-                                                                        ? 'bg-green-500/20 border-green-500/30 text-green-300'
-                                                                        : 'bg-yellow-500/20 border-yellow-500/30 text-yellow-300'
-                                                                )}>
-                                                                    <div className={cn(
-                                                                        "w-1.5 h-1.5 rounded-full",
-                                                                        content.status === 'published' ? 'bg-green-400' : 'bg-yellow-400'
-                                                                    )}></div>
-                                                                    {content.status.toUpperCase()}
-                                                                </span>
-                                                                <span className="text-slate-500 font-medium">
-                                                                    {content.departmentId?.toUpperCase()}
-                                                                </span>
-                                                                <span className="text-slate-500">
-                                                                    {new Date(content.$updatedAt).toLocaleDateString()}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                        {canManageContent && (
-                                                            <Link href={`/dashboard/content/${content.$id}/edit`}>
-                                                                <Button variant="outline" size="sm" className="backdrop-blur-sm bg-white/5 border-slate-600/50 text-slate-400 hover:text-white hover:border-purple-500/50 transition-all duration-300 opacity-0 group-hover:opacity-100 rounded-2xl">
-                                                                    <Icon icon="heroicons:pencil-16-solid" className="h-3 w-3" />
-                                                                </Button>
-                                                            </Link>
-                                                        )}
-                                                    </div>
-                                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {recentContent.map((item) => (
+                                        <div key={item.$id} className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                                            <div className="flex-1">
+                                                <h4 className="text-white font-medium">{item.title}</h4>
+                                                <p className="text-sm text-gray-400">
+                                                    {item.type} • v{item.version.toFixed(2)} • {new Date(item.updatedAt).toLocaleDateString()}
+                                                </p>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-16">
-                                            <div className="p-6 bg-slate-700/20 rounded-3xl w-fit mx-auto mb-6">
-                                                <Icon icon="heroicons:document-text-16-solid" className="h-12 w-12 text-slate-400" />
-                                            </div>
-                                            <h3 className="font-bold text-white mb-3 text-xl">No content available</h3>
-                                            <p className="text-slate-400 text-sm leading-relaxed mb-6">
-                                                Start creating content to see it appear here.
-                                            </p>
-                                            {canManageContent && (
-                                                <Link href="/dashboard/content/new">
-                                                    <Button className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 font-medium rounded-2xl h-12 px-6">
-                                                        <Icon icon="heroicons:plus-16-solid" className="mr-2 h-4 w-4" />
-                                                        Create First Content
+                                            <div className="flex items-center gap-2">
+                                                <span className={`px-2 py-1 text-xs font-medium rounded-md ${item.status === 'published' ? 'bg-green-500/20 text-green-400' :
+                                                    item.status === 'draft' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                        'bg-gray-500/20 text-gray-400'
+                                                    }`}>
+                                                    {item.status}
+                                                </span>
+                                                <Link href={`/dashboard/content/${item.$id}/edit`}>
+                                                    <Button size="sm" variant="outline" className="border-gray-600 text-gray-300 hover:bg-purple-500/10 hover:border-purple-500/50">
+                                                        <Icon icon="heroicons:pencil-16-solid" className="h-4 w-4" />
                                                     </Button>
                                                 </Link>
-                                            )}
-                                        </div>
-                                    )}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Recent Activity */}
-                    <div>
-                        <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl h-full">
-                            <CardHeader className="p-6 pb-4">
-                                <CardTitle className="text-white flex items-center gap-3 font-bold text-xl font-akrobat">
-                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl">
-                                        <Icon icon="heroicons:bolt-16-solid" className="h-5 w-5 text-white" />
-                                    </div>
-                                    Recent Activity
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="px-6 pb-6">
-                                <div className="space-y-3">
-                                    {recentActivity.length > 0 ? (
-                                        recentActivity.slice(0, 8).map((activity, index) => (
-                                            <div key={activity.$id} className="flex items-start gap-4 p-4 rounded-2xl hover:bg-white/5 transition-colors duration-200">
-                                                <div className={cn(
-                                                    "p-2.5 rounded-2xl mt-0.5",
-                                                    activity.action.includes('create') ? 'bg-green-500/20' :
-                                                        activity.action.includes('update') ? 'bg-blue-500/20' :
-                                                            activity.action.includes('delete') ? 'bg-red-500/20' :
-                                                                'bg-purple-500/20'
-                                                )}>
-                                                    <Icon
-                                                        icon={
-                                                            activity.action.includes('create') ? 'heroicons:plus-16-solid' :
-                                                                activity.action.includes('update') ? 'heroicons:pencil-16-solid' :
-                                                                    activity.action.includes('delete') ? 'heroicons:trash-16-solid' :
-                                                                        'heroicons:eye-16-solid'
-                                                        }
-                                                        className={cn(
-                                                            "h-4 w-4",
-                                                            activity.action.includes('create') ? 'text-green-400' :
-                                                                activity.action.includes('update') ? 'text-blue-400' :
-                                                                    activity.action.includes('delete') ? 'text-red-400' :
-                                                                        'text-purple-400'
-                                                        )}
-                                                    />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <p className="text-sm text-white font-medium leading-relaxed">
-                                                        {activity.description}
-                                                    </p>
-                                                    <p className="text-xs text-slate-400 mt-1.5">
-                                                        {new Date(activity.timestamp).toLocaleString()}
-                                                    </p>
-                                                </div>
                                             </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center py-12">
-                                            <div className="p-4 bg-slate-700/20 rounded-3xl w-fit mx-auto mb-4">
-                                                <Icon icon="heroicons:bolt-16-solid" className="h-8 w-8 text-slate-400" />
-                                            </div>
-                                            <h3 className="font-semibold text-white mb-2">No recent activity</h3>
-                                            <p className="text-slate-400 text-sm">
-                                                Activity will appear here as you use the system.
-                                            </p>
                                         </div>
-                                    )}
+                                    ))}
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                    <Link href="/ems" className="group">
-                        <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl h-full hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                            <CardContent className="p-6">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-4 bg-gradient-to-br from-purple-500 to-violet-600 rounded-3xl shadow-lg group-hover:shadow-purple-500/50 transition-all duration-300">
-                                        <Icon icon="heroicons:heart-16-solid" className="h-8 w-8 text-white" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-white text-xl group-hover:text-purple-300 transition-colors">
-                                            EMS Portal
-                                        </h3>
-                                        <p className="text-sm text-slate-400">Access department resources</p>
-                                    </div>
+                    {/* Enhanced Quick Actions */}
+                    <Card className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 border border-gray-700/50 backdrop-blur-sm">
+                        <CardHeader className="pb-4">
+                            <CardTitle className="text-white flex items-center gap-3">
+                                <div className="bg-blue-500/20 p-2 rounded-lg">
+                                    <Icon icon="heroicons:bolt-16-solid" className="h-5 w-5 text-blue-400" />
                                 </div>
-                                <p className="text-slate-300 text-sm leading-relaxed">
-                                    Quick access to medical protocols, SOPs, and reference materials.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                Quick Actions
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <div className="space-y-3">
+                                {canManageContent && (
+                                    <Button
+                                        asChild
+                                        className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg shadow-purple-500/25 transition-all duration-300 hover:shadow-purple-500/40"
+                                    >
+                                        <Link href="/dashboard/content/new" className="flex items-center justify-center gap-2">
+                                            <Icon icon="heroicons:plus-16-solid" className="h-4 w-4" />
+                                            Create New Content
+                                        </Link>
+                                    </Button>
+                                )}
 
-                    {canManageUsers && (
-                        <Link href="/dashboard/users" className="group">
-                            <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl h-full hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-4 mb-4">
-                                        <div className="p-4 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl shadow-lg group-hover:shadow-blue-500/50 transition-all duration-300">
-                                            <Icon icon="heroicons:users-16-solid" className="h-8 w-8 text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-white text-xl group-hover:text-blue-300 transition-colors">
-                                                User Management
-                                            </h3>
-                                            <p className="text-sm text-slate-400">Manage department staff</p>
-                                        </div>
-                                    </div>
-                                    <p className="text-slate-300 text-sm leading-relaxed">
-                                        Add, edit, and manage user accounts and permissions.
-                                    </p>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    )}
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="w-full border-gray-600 text-gray-300 hover:bg-green-500/10 hover:border-green-500/50 transition-all duration-300"
+                                >
+                                    <Link href="/ems" className="flex items-center justify-center gap-2">
+                                        <Icon icon="heroicons:book-open-16-solid" className="h-4 w-4" />
+                                        View Public Site
+                                    </Link>
+                                </Button>
 
-                    <Link href="/dashboard/profile" className="group">
-                        <Card className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-3xl h-full hover:scale-105 transition-all duration-300 hover:bg-white/10">
-                            <CardContent className="p-6">
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl shadow-lg group-hover:shadow-green-500/50 transition-all duration-300">
-                                        <Icon icon="heroicons:user-16-solid" className="h-8 w-8 text-white" />
+                                <Button
+                                    asChild
+                                    variant="outline"
+                                    className="w-full border-gray-600 text-gray-300 hover:bg-sky-500/10 hover:border-sky-500/50 transition-all duration-300"
+                                >
+                                    <Link href="/dashboard/profile" className="flex items-center justify-center gap-2">
+                                        <Icon icon="heroicons:user-circle-16-solid" className="h-4 w-4" />
+                                        Edit Profile
+                                    </Link>
+                                </Button>
+
+                                {user.role === 'super_admin' && (
+                                    <div className="pt-2 border-t border-gray-700/50">
+                                        <p className="text-xs text-gray-500 mb-2 font-medium uppercase tracking-wide">Admin Tools</p>
+                                        <Button
+                                            asChild
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full border-red-600/50 text-red-400 hover:bg-red-500/10 hover:border-red-500/50 transition-all duration-300"
+                                        >
+                                            <Link href="/api/seed" className="flex items-center justify-center gap-2">
+                                                <Icon icon="heroicons:cog-6-tooth-16-solid" className="h-4 w-4" />
+                                                System Tools
+                                            </Link>
+                                        </Button>
                                     </div>
-                                    <div>
-                                        <h3 className="font-bold text-white text-xl group-hover:text-green-300 transition-colors">
-                                            Profile Settings
-                                        </h3>
-                                        <p className="text-sm text-slate-400">Update your information</p>
-                                    </div>
-                                </div>
-                                <p className="text-slate-300 text-sm leading-relaxed">
-                                    Manage your profile, preferences, and account settings.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
         </div>

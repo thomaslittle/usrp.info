@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { notificationService } from '@/lib/database';
 import { ID } from 'appwrite';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Create a test notification
     const testNotification = await notificationService.create({

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
+// Database operations handled by service layer
 import { contentService, userService, notificationService } from '@/lib/database';
 import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const contentId = params.id;
+        const { id: contentId } = await params;
         const content = await contentService.getById(contentId);
 
         if (!content) {
@@ -24,7 +24,7 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const user = await getCurrentUserFromRequest(request);
@@ -37,7 +37,7 @@ export async function PUT(
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const contentId = params.id;
+        const { id: contentId } = await params;
         const updateData = await request.json();
         const { changesSummary, ...contentUpdates } = updateData;
         
@@ -74,10 +74,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const contentId = params.id;
+    const { id: contentId } = await params;
 
     if (!contentId) {
       return NextResponse.json(
@@ -103,7 +103,7 @@ export async function DELETE(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await getCurrentUserFromRequest(request);
@@ -116,7 +116,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const contentId = params.id;
+    const { id: contentId } = await params;
     const body = await request.json();
 
     if (!contentId) {

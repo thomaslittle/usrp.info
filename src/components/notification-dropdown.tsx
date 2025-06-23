@@ -151,18 +151,13 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
                 >
                     <Icon icon="heroicons:bell-16-solid" className="h-5 w-5" />
                     {unreadCount > 0 && (
-                        <Badge
-                            variant="destructive"
-                            className="absolute -top-1 -right-1 h-4 w-4 rounded-full p-0 flex items-center justify-center text-xs font-bold bg-red-500 text-white min-w-4"
-                        >
-                            {unreadCount > 9 ? '9+' : unreadCount}
-                        </Badge>
+                        <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-purple-500" />
                     )}
                 </Button>
             </PopoverTrigger>
             <PopoverContent
                 align="end"
-                className="w-80 p-0 bg-gray-900 border-gray-800 shadow-xl"
+                className="w-80 p-0 bg-gray-800/50 backdrop-blur-lg border border-gray-700/50 shadow-xl"
             >
                 <div className="flex items-center justify-between p-4 border-b border-gray-800">
                     <h3 className="text-sm font-semibold text-white">Notifications</h3>

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Preloader } from '@/components/ui/preloader';
 import { BlockNoteEditorComponent } from '@/components/ui/blocknote-editor';
 import { getCurrentUser } from '@/lib/auth';
-import { getAppwriteSessionToken, cn } from '@/lib/utils';
+import { getAppwriteSessionToken } from '@/lib/utils';
 import { User, ContentType } from '@/types';
 import { ID } from 'appwrite';
 
@@ -81,7 +81,7 @@ export default function NewContentPage() {
         }
     }, [formData.title]);
 
-    const handleInputChange = (field: keyof ContentFormData, value: any) => {
+    const handleInputChange = (field: keyof ContentFormData, value: string | ContentType | string[]) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -182,7 +182,7 @@ export default function NewContentPage() {
                         <div className="text-center">
                             <Icon icon="heroicons:no-symbol-16-solid" className="h-16 w-16 mx-auto mb-4 text-red-500" />
                             <h3 className="text-lg font-medium text-white mb-2">Access Denied</h3>
-                            <p className="text-gray-400">You don't have permission to create content.</p>
+                            <p className="text-gray-400">You don&apos;t have permission to create content.</p>
                         </div>
                     </CardContent>
                 </Card>

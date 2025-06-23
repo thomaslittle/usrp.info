@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Preloader } from '@/components/ui/preloader';
 import { useAuth } from '@/hooks/use-auth';
 import { User } from '@/types';
-import { getAppwriteSessionToken, cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 export default function ProfilePage() {
     const { user: authUser, userProfile, isLoading: authLoading } = useAuth();
@@ -53,12 +53,7 @@ export default function ProfilePage() {
                 let response;
                 if (isViewingOtherUser) {
                     // Load other user's profile by ID
-                    const sessionToken = getAppwriteSessionToken();
-                    response = await fetch(`/api/users/${viewingUserId}`, {
-                        headers: {
-                            'X-Fallback-Cookies': sessionToken || ''
-                        }
-                    });
+                    response = await fetch(`/api/users/${viewingUserId}`);
                 } else {
                     // Load current user's profile
                     response = await fetch(`/api/users/profile?email=${encodeURIComponent(authUser.email)}`);
@@ -398,11 +393,11 @@ export default function ProfilePage() {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400 text-sm">Department</span>
-                                    <span className="text-white font-medium capitalize">{user.department}</span>
+                                    <span className="text-white font-medium uppercase">{user.department}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400 text-sm">Role</span>
-                                    <span className="text-white font-medium capitalize">{user.role.replace('_', ' ')}</span>
+                                    <span className="text-white font-medium uppercase">{user.role.replace('_', ' ')}</span>
                                 </div>
                                 {user.activity && (
                                     <div className="flex justify-between items-center">

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Query } from 'node-appwrite';
 import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
+import { Query } from 'appwrite';
 
 interface SearchResult {
   id: string;
@@ -18,24 +18,40 @@ interface SearchResult {
   activity?: string;
 }
 
+interface ContentDocument {
+  $id: string;
+  title: string;
+  content?: string;
+  type: string;
+  slug: string;
+  departmentId: string;
+  status: string;
+  tags?: string[];
+}
+
+interface UserDocument {
+  $id: string;
+  username: string;
+  gameCharacterName?: string;
+  callsign?: string;
+  jobTitle?: string;
+  assignment?: string;
+  department?: string;
+  role?: string;
+  isFTO?: boolean;
+  isSoloCleared?: boolean;
+  activity?: string;
+}
+
 export async function GET(request: NextRequest) {
   try {
-    // Bypass authentication for testing
-    const currentUser = {
-      $id: 'test-user',
-      email: 'tomlit@gmail.com',
-      name: 'Tom Lit',
-      labels: [],
-      prefs: {}
-    };
-
-    const searchParams = request.nextUrl.searchParams;
+    const { searchParams } = new URL(request.url);
     const query = searchParams.get('q');
 
-    if (!query || query.trim().length < 2) {
-      return NextResponse.json({ 
-        success: false, 
-        error: 'Query must be at least 2 characters long' 
+    if (!query || query.trim().length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Search query is required'
       }, { status: 400 });
     }
 
@@ -44,62 +60,54 @@ export async function GET(request: NextRequest) {
 
     // Search content
     try {
-      const contentQueries = [
-        Query.limit(20)
-      ];
+      const allContentDocuments: ContentDocument[] = [];
+      const foundDocumentIds = new Set<string>();
 
-      // Check for department-specific searches
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      if (['ems', 'police', 'fire', 'doj', 'government'].includes(lowerSearchTerm)) {
-        // Search by department
-        contentQueries.push(
-          Query.and([
-            Query.equal('departmentId', lowerSearchTerm),
-            Query.equal('status', 'published')
-          ])
-        );
-      } else if (['sop', 'guide', 'announcement', 'resource', 'training', 'policy'].includes(lowerSearchTerm)) {
-        // Search by content type
-        contentQueries.push(
-          Query.and([
-            Query.equal('type', lowerSearchTerm),
-            Query.equal('status', 'published')
-          ])
-        );
-      } else {
-        // Regular text search
-        contentQueries.push(
-          Query.and([
-            Query.or([
-              Query.search('title', searchTerm),
-              Query.contains('tags', searchTerm)
-            ]),
-            Query.equal('status', 'published')
-          ])
-        );
-      }
+      const runContentQuery = async (queries: string[]) => {
+        try {
+          const response = await adminDatabases.listDocuments(
+            DATABASE_ID,
+            COLLECTIONS.CONTENT,
+            [
+              ...queries,
+              Query.equal('status', 'published'),
+              Query.limit(20)
+            ]
+          );
+          for (const doc of response.documents) {
+            const contentDoc = doc as unknown as ContentDocument;
+            if (!foundDocumentIds.has(contentDoc.$id)) {
+              foundDocumentIds.add(contentDoc.$id);
+              allContentDocuments.push(contentDoc);
+            }
+          }
+        } catch (queryError) {
+          console.error('Content query error:', queryError);
+        }
+      };
 
-      const contentResults = await adminDatabases.listDocuments(
-        DATABASE_ID,
-        COLLECTIONS.CONTENT,
-        contentQueries
-      );
+      // Perform separate searches for title, tags, and type, as Appwrite does not support multiple 'search' queries in one call.
+      await runContentQuery([Query.search('title', searchTerm)]);
+      await runContentQuery([Query.contains('tags', searchTerm)]);
+      await runContentQuery([Query.equal('type', searchTerm)]);
 
-      for (const doc of contentResults.documents) {
+      for (const doc of allContentDocuments) {
         // Generate description from content if available
         let description = '';
         if (doc.content) {
           try {
             const contentObj = typeof doc.content === 'string' ? JSON.parse(doc.content) : doc.content;
             if (contentObj.blocks && Array.isArray(contentObj.blocks)) {
-              const textBlocks = contentObj.blocks.filter((block: any) => 
-                block.type === 'paragraph' && block.data?.text
-              );
+              const textBlocks = contentObj.blocks.filter((block: unknown) => {
+                const typedBlock = block as { type?: string; data?: { text?: string } };
+                return typedBlock.type === 'paragraph' && typedBlock.data?.text;
+              });
               if (textBlocks.length > 0) {
-                description = textBlocks[0].data.text.replace(/<[^>]*>/g, '').substring(0, 100) + '...';
+                const firstBlock = textBlocks[0] as { data: { text: string } };
+                description = firstBlock.data.text.replace(/<[^>]*>/g, '').substring(0, 100) + '...';
               }
             }
-          } catch (e) {
+          } catch {
             // Fallback to raw content
             description = typeof doc.content === 'string' 
               ? doc.content.substring(0, 100) + '...'
@@ -175,7 +183,8 @@ export async function GET(request: NextRequest) {
         userQueries
       );
 
-      for (const user of userResults.documents) {
+      for (const userDoc of userResults.documents) {
+        const user = userDoc as unknown as UserDocument;
         let subtitle = '';
         if (user.jobTitle) {
           subtitle = user.jobTitle;
@@ -188,7 +197,7 @@ export async function GET(request: NextRequest) {
         }
 
         // Add special badges for search context
-        let specialBadges = [];
+        const specialBadges = [];
         if (lowerSearchTerm.includes('fto') && user.isFTO) {
           specialBadges.push('FTO');
         }

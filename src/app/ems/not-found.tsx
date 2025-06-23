@@ -42,7 +42,7 @@ export default function EMSNotFound() {
                             EMS RESOURCE NOT FOUND
                         </h2>
                         <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-                            The EMS resource you're looking for doesn't exist or has been moved. Check out our available protocols and guides below.
+                            The EMS resource you&apos;re looking for doesn&apos;t exist or has been moved. Check out our available protocols and guides below.
                         </p>
                     </div>
 

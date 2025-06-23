@@ -17,47 +17,56 @@ import { getAppwriteSessionToken } from '@/lib/utils';
 import { User, ContentType } from '@/types';
 
 // Helper function to convert rich text JSON to markdown
-function convertRichTextToMarkdown(doc: any): string {
-    if (!doc.content) return '';
+function convertRichTextToMarkdown(doc: unknown): string {
+    const docTyped = doc as { content?: unknown[] };
+    if (!docTyped.content) return '';
 
-    function processNode(node: any): string {
+    function processNode(node: unknown): string {
         if (!node) return '';
 
-        if (node.type === 'text') {
-            return node.text || '';
+        const nodeTyped = node as {
+            type?: string;
+            text?: string;
+            content?: unknown[];
+            attrs?: { level?: number }
+        };
+
+        if (nodeTyped.type === 'text') {
+            return nodeTyped.text || '';
         }
 
-        if (node.type === 'paragraph') {
-            const content = node.content?.map(processNode).join('') || '';
+        if (nodeTyped.type === 'paragraph') {
+            const content = nodeTyped.content?.map(processNode).join('') || '';
             return content + '\n\n';
         }
 
-        if (node.type === 'heading') {
-            const level = node.attrs?.level || 1;
-            const content = node.content?.map(processNode).join('') || '';
+        if (nodeTyped.type === 'heading') {
+            const level = nodeTyped.attrs?.level || 1;
+            const content = nodeTyped.content?.map(processNode).join('') || '';
             return '#'.repeat(level) + ' ' + content + '\n\n';
         }
 
-        if (node.type === 'bulletList') {
-            return node.content?.map((item: any) => {
-                const content = item.content?.map(processNode).join('').trim() || '';
+        if (nodeTyped.type === 'bulletList') {
+            return nodeTyped.content?.map((item: unknown) => {
+                const itemTyped = item as { content?: unknown[] };
+                const content = itemTyped.content?.map(processNode).join('').trim() || '';
                 return '- ' + content + '\n';
             }).join('') + '\n';
         }
 
-        if (node.type === 'listItem') {
-            return node.content?.map(processNode).join('') || '';
+        if (nodeTyped.type === 'listItem') {
+            return nodeTyped.content?.map(processNode).join('') || '';
         }
 
         // Handle other node types by processing their content
-        if (node.content) {
-            return node.content.map(processNode).join('');
+        if (nodeTyped.content) {
+            return nodeTyped.content.map(processNode).join('');
         }
 
         return '';
     }
 
-    return doc.content.map(processNode).join('').trim();
+    return docTyped.content.map(processNode).join('').trim();
 }
 
 interface ContentFormData {
@@ -70,11 +79,24 @@ interface ContentFormData {
     changesSummary: string;
 }
 
+interface ContentItem {
+    $id: string;
+    title: string;
+    slug: string;
+    content: string;
+    type: ContentType;
+    tags?: string[];
+    status: 'draft' | 'published';
+    version: number;
+    authorId: string;
+    publishedAt?: string;
+}
+
 export default function EditContentPage() {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [contentItem, setContentItem] = useState<any>(null);
+    const [contentItem, setContentItem] = useState<ContentItem | null>(null);
     const [activeTab, setActiveTab] = useState<'edit' | 'history'>('edit');
     const [formData, setFormData] = useState<ContentFormData>({
         title: '',
@@ -125,7 +147,7 @@ export default function EditContentPage() {
                     return;
                 }
 
-                setContentItem(content);
+                setContentItem(content as ContentItem);
 
                 // Parse content JSON if it exists
                 let parsedContent = content.content;
@@ -144,7 +166,7 @@ export default function EditContentPage() {
                             parsedContent = JSON.stringify(contentObj, null, 2);
                         }
                     }
-                } catch (e) {
+                } catch {
                     // Not JSON, use as is
                 }
 
@@ -171,7 +193,7 @@ export default function EditContentPage() {
         }
     }, [router, contentId]);
 
-    const handleInputChange = (field: keyof ContentFormData, value: any) => {
+    const handleInputChange = (field: keyof ContentFormData, value: string | ContentType | string[]) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -207,7 +229,7 @@ export default function EditContentPage() {
                 status: formData.status,
                 tags: formData.tags,
                 changesSummary: formData.changesSummary,
-                version: (contentItem.version || 1) + 1,
+                version: parseFloat(((contentItem.version || 0) + 0.01).toFixed(2)),
                 updatedAt: new Date().toISOString(),
                 ...(formData.status === 'published' && !contentItem.publishedAt && { publishedAt: new Date().toISOString() })
             };
@@ -248,278 +270,194 @@ export default function EditContentPage() {
                 <Preloader
                     text="Loading content editor..."
                     size="md"
+                    className="mx-auto"
                 />
             </div>
         );
     }
 
-    if (!user || !contentItem) {
+    if (!contentItem) {
         return (
-            <div className="p-6">
-                <Card className="bg-gray-800 border-gray-800">
-                    <CardContent className="p-12">
-                        <div className="text-center">
-                            <Icon icon="heroicons:no-symbol-16-solid" className="h-16 w-16 mx-auto mb-4 text-red-500" />
-                            <h3 className="text-lg font-medium text-white mb-2">Error</h3>
-                            <p className="text-gray-400">Could not load content or user data.</p>
-                        </div>
-                    </CardContent>
-                </Card>
+            <div className="p-6 text-center">
+                <p className="text-white">Content not found or you do not have permission to view it.</p>
+                <Button onClick={() => router.push('/dashboard/content')} className="mt-4">
+                    Back to Content List
+                </Button>
             </div>
         );
     }
 
     return (
-        <div className="p-6 space-y-6 z-50">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+        <div className="p-4 sm:p-6">
+            <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-white">Edit Content</h1>
-                    <p className="text-gray-400">
+                    <p className="text-sm text-gray-400">
                         Editing: {contentItem.title} (v{contentItem.version})
                     </p>
                 </div>
-                <div className="flex items-center gap-3">
-                    {/* Tab Navigation */}
-                    <div className="flex rounded-lg bg-slate-800 border border-slate-700 p-1">
-                        <Button
-                            type="button"
-                            variant={activeTab === 'edit' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setActiveTab('edit')}
-                            className={activeTab === 'edit' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:text-white'}
-                        >
-                            <Icon icon="heroicons:pencil" className="h-4 w-4 mr-2" />
-                            Edit
-                        </Button>
-                        <Button
-                            type="button"
-                            variant={activeTab === 'history' ? 'default' : 'ghost'}
-                            size="sm"
-                            onClick={() => setActiveTab('history')}
-                            className={activeTab === 'history' ? 'bg-purple-600 text-white' : 'text-slate-300 hover:text-white'}
-                        >
-                            <Icon icon="heroicons:clock" className="h-4 w-4 mr-2" />
-                            History
-                        </Button>
-                    </div>
+                <div className="flex items-center gap-2">
                     <Button
-                        variant="outline"
-                        onClick={() => router.back()}
-                        className="border-gray-600 text-gray-300"
+                        variant={activeTab === 'edit' ? 'default' : 'outline'}
+                        onClick={() => setActiveTab('edit')}
                     >
-                        <Icon icon="heroicons:arrow-left-16-solid" className="mr-2 h-4 w-4" />
+                        <Icon icon="heroicons:pencil-16-solid" className="h-4 w-4 mr-2" />
+                        Edit
+                    </Button>
+                    <Button
+                        variant={activeTab === 'history' ? 'default' : 'outline'}
+                        onClick={() => setActiveTab('history')}
+                    >
+                        <Icon icon="heroicons:clock-16-solid" className="h-4 w-4 mr-2" />
+                        History
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={() => router.back()}
+                    >
+                        <Icon icon="heroicons:arrow-left-16-solid" className="h-4 w-4 mr-2" />
                         Back
                     </Button>
                 </div>
             </div>
 
-            {/* Tab Content */}
-            {activeTab === 'edit' ? (
-                /* Content Form */
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        {/* Main Content */}
-                        <div className="lg:col-span-2 space-y-6">
-                            <Card className="bg-gray-800 border-gray-800">
-                                <CardHeader>
-                                    <CardTitle className="text-white">Content Details</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="title" className="text-gray-300">Title *</Label>
+            {activeTab === 'edit' && (
+                <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        {/* Content Details */}
+                        <Card className="lg:col-span-2 bg-gray-800/50 border border-gray-800">
+                            <CardHeader>
+                                <CardTitle>Content Details</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div>
+                                    <Label htmlFor="title" className="block mb-2">Title *</Label>
+                                    <Input
+                                        id="title"
+                                        value={formData.title}
+                                        onChange={(e) => handleInputChange('title', e.target.value)}
+                                        className="bg-gray-900/50 border-gray-700"
+                                    />
+                                </div>
+                                <div>
+                                    <Label htmlFor="slug" className="block mb-2">Slug</Label>
+                                    <Input
+                                        id="slug"
+                                        value={formData.slug}
+                                        onChange={(e) => handleInputChange('slug', e.target.value)}
+                                        className="bg-gray-900/50 border-gray-700"
+                                    />
+                                    {user && <p className="text-xs text-gray-500 mt-1">URL: /{user.department}/{formData.type}/{formData.slug}</p>}
+                                </div>
+                                <div>
+                                    <Label htmlFor="changesSummary" className="block mb-2">Changes Summary</Label>
+                                    <Textarea
+                                        id="changesSummary"
+                                        value={formData.changesSummary}
+                                        onChange={(e) => handleInputChange('changesSummary', e.target.value)}
+                                        placeholder="Briefly describe what changes you made..."
+                                        className="bg-gray-900/50 border-gray-700"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Settings */}
+                        <Card className="bg-gray-800/50 border border-gray-800">
+                            <CardHeader>
+                                <CardTitle>Settings</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div>
+                                    <Label htmlFor="type" className="block mb-2">Content Type *</Label>
+                                    <Select
+                                        value={formData.type}
+                                        onValueChange={(value: ContentType) => handleInputChange('type', value)}
+                                    >
+                                        <SelectTrigger className="bg-gray-900/50 border-gray-700">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="sop">Standard Operating Procedure</SelectItem>
+                                            <SelectItem value="guide">Guide</SelectItem>
+                                            <SelectItem value="announcement">Announcement</SelectItem>
+                                            <SelectItem value="resource">Resource</SelectItem>
+                                            <SelectItem value="training">Training</SelectItem>
+                                            <SelectItem value="policy">Policy</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label htmlFor="status" className="block mb-2">Status</Label>
+                                    <Select
+                                        value={formData.status}
+                                        onValueChange={(value: 'draft' | 'published') => handleInputChange('status', value)}
+                                    >
+                                        <SelectTrigger className="bg-gray-900/50 border-gray-700">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="draft">Draft</SelectItem>
+                                            <SelectItem value="published">Published</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div>
+                                    <Label className="block mb-2">Tags</Label>
+                                    <div className="flex items-center gap-2">
                                         <Input
-                                            id="title"
-                                            type="text"
-                                            value={formData.title}
-                                            onChange={(e) => handleInputChange('title', e.target.value)}
-                                            className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500"
-                                            placeholder="Enter content title"
-                                            required
+                                            value={tagInput}
+                                            onChange={(e) => setTagInput(e.target.value)}
+                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                                            placeholder="Add a tag..."
+                                            className="bg-gray-900/50 border-gray-700"
                                         />
+                                        <Button type="button" onClick={handleAddTag} size="sm">Add</Button>
                                     </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="slug" className="text-gray-300">Slug</Label>
-                                        <Input
-                                            id="slug"
-                                            type="text"
-                                            value={formData.slug}
-                                            onChange={(e) => handleInputChange('slug', e.target.value)}
-                                            className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500"
-                                            placeholder="url-friendly-slug"
-                                        />
-                                        <p className="text-xs text-gray-500">
-                                            URL: /{user.department}/{formData.type}/{formData.slug || 'slug'}
-                                        </p>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {formData.tags.map(tag => (
+                                            <div key={tag} className="flex items-center gap-1 bg-gray-700 text-white px-2 py-1 rounded-md text-sm">
+                                                {tag}
+                                                <button type="button" onClick={() => handleRemoveTag(tag)}>
+                                                    <Icon icon="heroicons:x-mark-16-solid" className="h-3 w-3" />
+                                                </button>
+                                            </div>
+                                        ))}
                                     </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="changesSummary" className="text-gray-300">Changes Summary</Label>
-                                        <Textarea
-                                            id="changesSummary"
-                                            value={formData.changesSummary}
-                                            onChange={(e) => handleInputChange('changesSummary', e.target.value)}
-                                            className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500"
-                                            placeholder="Briefly describe what changes you made..."
-                                            rows={3}
-                                        />
-                                        <p className="text-xs text-gray-500">
-                                            This will help other users understand what changed in this version.
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                    {/* Editor */}
+                    <Card className="bg-gray-800/50 border border-gray-800">
+                        <CardContent className="p-2 md:p-4">
+                            <BlockNoteEditorComponent
+                                value={formData.content}
+                                onChange={(newContent: string) => handleInputChange('content', newContent)}
+                            />
+                        </CardContent>
+                    </Card>
 
-                            <Card className="bg-gray-800 border-gray-800">
-                                <CardHeader>
-                                    <CardTitle className="text-white">Content</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="content" className="text-gray-300">Content</Label>
-                                        <BlockNoteEditorComponent
-                                            value={formData.content}
-                                            onChange={(value: string) => handleInputChange('content', value)}
-                                            placeholder="Edit your content..."
-                                        />
-
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
-
-                        {/* Sidebar */}
-                        <div className="space-y-6">
-                            <Card className="bg-gray-800 border-gray-800">
-                                <CardHeader>
-                                    <CardTitle className="text-white">Settings</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="type" className="text-gray-300">Content Type *</Label>
-                                        <Select
-                                            value={formData.type}
-                                            onValueChange={(value) => handleInputChange('type', value as ContentType)}
-                                        >
-                                            <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:ring-purple-500">
-                                                <SelectValue placeholder="Select content type" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-gray-700 border-gray-600">
-                                                <SelectItem value="sop">Standard Operating Procedure</SelectItem>
-                                                <SelectItem value="guide">Guide</SelectItem>
-                                                <SelectItem value="announcement">Announcement</SelectItem>
-                                                <SelectItem value="resource">Resource</SelectItem>
-                                                <SelectItem value="training">Training Material</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Label htmlFor="status" className="text-gray-300">Status</Label>
-                                        <Select
-                                            value={formData.status}
-                                            onValueChange={(value) => handleInputChange('status', value as 'draft' | 'published')}
-                                        >
-                                            <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:ring-purple-500">
-                                                <SelectValue placeholder="Select status" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-gray-700 border-gray-600">
-                                                <SelectItem value="draft">Draft</SelectItem>
-                                                {(user.role === 'admin' || user.role === 'super_admin') && (
-                                                    <SelectItem value="published">Published</SelectItem>
-                                                )}
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="bg-gray-800 border-gray-800">
-                                <CardHeader>
-                                    <CardTitle className="text-white">Tags</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <div className="space-y-2">
-                                        <div className="flex space-x-2">
-                                            <Input
-                                                type="text"
-                                                value={tagInput}
-                                                onChange={(e) => setTagInput(e.target.value)}
-                                                onKeyPress={(e: React.KeyboardEvent<HTMLInputElement>) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                                                className="flex-1 bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-purple-500"
-                                                placeholder="Add a tag..."
-                                            />
-                                            <Button
-                                                type="button"
-                                                onClick={handleAddTag}
-                                                className="bg-purple-600 hover:bg-purple-700"
-                                            >
-                                                Add
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {formData.tags.map((tag) => (
-                                                <span
-                                                    key={tag}
-                                                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
-                                                >
-                                                    {tag}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveTag(tag)}
-                                                        className="ml-1 text-purple-600 hover:text-purple-800"
-                                                    >
-                                                        <Icon icon="heroicons:x-mark-16-solid" className="h-3 w-3" />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="bg-gray-800 border-gray-800">
-                                <CardContent className="p-4">
-                                    <div className="space-y-3">
-                                        <Button
-                                            type="submit"
-                                            disabled={saving || !formData.title.trim()}
-                                            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
-                                        >
-                                            {saving ? (
-                                                <>
-                                                    <div className="mr-2 h-4 w-4 inline-block relative">
-                                                        <span className="absolute inline-block w-full h-full rounded-full bg-white animate-[loader3_1.5s_linear_infinite]" />
-                                                        <span className="absolute inline-block w-full h-full rounded-full bg-white animate-[loader3_1.5s_linear_infinite] [animation-delay:-0.9s]" />
-                                                    </div>
-                                                    Updating...
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Icon icon="heroicons:document-check-16-solid" className="mr-2 h-4 w-4" />
-                                                    Update Content
-                                                </>
-                                            )}
-                                        </Button>
-
-                                        <Button
-                                            type="button"
-                                            variant="outline"
-                                            onClick={() => router.push(`/ems/${contentItem.type}/${contentItem.slug}`)}
-                                            className="w-full border-gray-600 text-gray-300 hover:bg-gray-700"
-                                        >
-                                            <Icon icon="heroicons:eye-16-solid" className="mr-2 h-4 w-4" />
-                                            Preview
-                                        </Button>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </div>
+                    <div className="mt-6 flex justify-end">
+                        <Button type="submit" disabled={saving} size="lg">
+                            {saving ? (
+                                <>
+                                    <Icon icon="line-md:loading-loop" className="h-5 w-5 mr-2" />
+                                    Saving...
+                                </>
+                            ) : (
+                                <>
+                                    <Icon icon="heroicons:check-16-solid" className="h-5 w-5 mr-2" />
+                                    Save Changes
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </form>
-            ) : (
-                /* Version History */
+            )}
+
+            {activeTab === 'history' && contentItem && (
                 <VersionHistory
                     contentId={contentId}
                     onVersionRestored={handleVersionRestored}

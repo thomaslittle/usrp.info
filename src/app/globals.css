@@ -22,6 +22,67 @@
   50% { transform: translateY(-4px); }
 }
 
+/* Shadcn/Radix UI animations */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes zoom-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes zoom-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.95); }
+}
+
+@keyframes slide-in-from-top {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in-from-bottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in-from-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-from-top-2 {
+  from { transform: translateY(-2px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in-from-bottom-2 {
+  from { transform: translateY(2px); }
+  to { transform: translateY(0); }
+}
+
+@keyframes slide-in-from-left-2 {
+  from { transform: translateX(-2px); }
+  to { transform: translateX(0); }
+}
+
+@keyframes slide-in-from-right-2 {
+  from { transform: translateX(2px); }
+  to { transform: translateX(0); }
+}
+
 
 
 @theme {
@@ -43,7 +104,22 @@
   --color-destructive: #EF4444;
   --color-destructive-foreground: #FFFFFF;
   
+  /* Animation utilities */
   --animate-float: float 6s ease-in-out infinite;
+  --animate-in: fade-in 0.2s ease-out;
+  --animate-out: fade-out 0.2s ease-out;
+  --animate-fade-in: fade-in 0.2s ease-out;
+  --animate-fade-out: fade-out 0.2s ease-out;
+  --animate-zoom-in: zoom-in 0.2s ease-out;
+  --animate-zoom-out: zoom-out 0.2s ease-out;
+  --animate-slide-in-from-top: slide-in-from-top 0.2s ease-out;
+  --animate-slide-in-from-bottom: slide-in-from-bottom 0.2s ease-out;
+  --animate-slide-in-from-left: slide-in-from-left 0.2s ease-out;
+  --animate-slide-in-from-right: slide-in-from-right 0.2s ease-out;
+  --animate-slide-in-from-top-2: slide-in-from-top-2 0.2s ease-out;
+  --animate-slide-in-from-bottom-2: slide-in-from-bottom-2 0.2s ease-out;
+  --animate-slide-in-from-left-2: slide-in-from-left-2 0.2s ease-out;
+  --animate-slide-in-from-right-2: slide-in-from-right-2 0.2s ease-out;
 }
 
 :root {
@@ -258,6 +334,47 @@ body {
 }
 
 @layer utilities {
+  /* Shadcn animation utilities */
+  .animate-in {
+    animation: fade-in 0.2s ease-out;
+  }
+  
+  .animate-out {
+    animation: fade-out 0.2s ease-out;
+  }
+  
+  .fade-in-0 {
+    animation: fade-in 0.2s ease-out;
+  }
+  
+  .fade-out-0 {
+    animation: fade-out 0.2s ease-out;
+  }
+  
+  .zoom-in-95 {
+    animation: zoom-in 0.2s ease-out;
+  }
+  
+  .zoom-out-95 {
+    animation: zoom-out 0.2s ease-out;
+  }
+  
+  .slide-in-from-top-2 {
+    animation: slide-in-from-top-2 0.2s ease-out;
+  }
+  
+  .slide-in-from-bottom-2 {
+    animation: slide-in-from-bottom-2 0.2s ease-out;
+  }
+  
+  .slide-in-from-left-2 {
+    animation: slide-in-from-left-2 0.2s ease-out;
+  }
+  
+  .slide-in-from-right-2 {
+    animation: slide-in-from-right-2 0.2s ease-out;
+  }
+
   /* Enhanced component styles */
   .h-enhanced {
     font-weight: 600;

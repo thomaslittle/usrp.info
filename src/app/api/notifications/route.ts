@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { notificationService } from '@/lib/database';
-import { getCurrentUserFromRequest } from '@/lib/auth';
+// import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {

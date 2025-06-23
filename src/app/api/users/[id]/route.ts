@@ -4,10 +4,15 @@ import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = params.id;
+    const currentUser = await getCurrentUserFromRequest(request);
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id: userId } = await params;
     const body = await request.json();
     const { role, currentUserEmail } = body;
 
@@ -19,8 +24,8 @@ export async function PATCH(
     }
 
     // Get current user to check permissions
-    const currentUser = await userService.getByEmail(currentUserEmail);
-    if (!currentUser) {
+    const currentUserData = await userService.getByEmail(currentUser.email);
+    if (!currentUserData) {
       return NextResponse.json(
         { error: 'Current user not found' },
         { status: 404 }
@@ -28,7 +33,7 @@ export async function PATCH(
     }
 
     // Permission checks
-    if (!['admin', 'super_admin'].includes(currentUser.role)) {
+    if (!['admin', 'super_admin'].includes(currentUserData.role)) {
       return NextResponse.json(
         { error: 'Insufficient permissions' },
         { status: 403 }
@@ -45,7 +50,7 @@ export async function PATCH(
     }
 
     // Admins can't promote to super_admin or modify other admins/super_admins
-    if (currentUser.role === 'admin') {
+    if (currentUserData.role === 'admin') {
       if (['admin', 'super_admin'].includes(targetUser.role)) {
         return NextResponse.json(
           { error: 'Cannot modify admin or super admin accounts' },
@@ -58,7 +63,7 @@ export async function PATCH(
           { status: 403 }
         );
       }
-      if (targetUser.department !== currentUser.department) {
+      if (targetUser.department !== currentUserData.department) {
         return NextResponse.json(
           { error: 'Can only modify users in your department' },
           { status: 403 }
@@ -71,7 +76,7 @@ export async function PATCH(
 
     // Log the activity
     await logActivity(
-      currentUser.userId,
+      currentUserData.userId,
       'update',
       'user',
       `Changed role of ${targetUser.username} to ${role}`,
@@ -93,145 +98,153 @@ export async function PATCH(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const userId = params.id;
-    const body = await request.json();
-    const { currentUserEmail, ...updateData } = body;
+    const currentUser = await getCurrentUserFromRequest(request);
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    if (!userId || !currentUserEmail) {
+    const { id: userId } = await params;
+    
+    if (!userId) {
       return NextResponse.json(
-        { error: 'User ID and current user email are required' },
+        { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    // Get current user to check permissions (with temporary bypass)
-    let currentUser = await getCurrentUserFromRequest(request);
+    const updateData = await request.json();
     
-    // Temporarily bypass authentication for testing
-    if (!currentUser) {
-      const mockUser = await userService.getByEmail(currentUserEmail);
-      if (mockUser) {
-        currentUser = {
-          $id: mockUser.userId,
-          email: mockUser.email,
-          name: mockUser.username
-        } as any;
-      }
-    }
-
-    if (!currentUser) {
+    // Basic validation
+    if (updateData.email && !updateData.email.includes('@')) {
       return NextResponse.json(
-        { error: 'Current user not found' },
-        { status: 404 }
+        { error: 'Invalid email format' },
+        { status: 400 }
       );
     }
 
-    // Get current user profile from database
-    const currentUserProfile = await userService.getByEmail(currentUser.email);
-    if (!currentUserProfile) {
-      return NextResponse.json(
-        { error: 'Current user profile not found' },
-        { status: 404 }
-      );
-    }
-
-    // Permission checks
-    if (!['admin', 'super_admin'].includes(currentUserProfile.role)) {
-      return NextResponse.json(
-        { error: 'Insufficient permissions' },
-        { status: 403 }
-      );
-    }
-
-    // Get target user
+    // Check if current user can update this user
     const targetUser = await userService.getById(userId);
     if (!targetUser) {
       return NextResponse.json(
-        { error: 'Target user not found' },
+        { error: 'User not found' },
         { status: 404 }
       );
     }
 
-    // Admins can't modify other admins/super_admins
-    if (currentUserProfile.role === 'admin') {
-      if (['admin', 'super_admin'].includes(targetUser.role)) {
-        return NextResponse.json(
-          { error: 'Cannot modify admin or super admin accounts' },
-          { status: 403 }
-        );
-      }
-      if (updateData.role === 'super_admin') {
-        return NextResponse.json(
-          { error: 'Cannot promote users to super admin' },
-          { status: 403 }
-        );
-      }
-      if (targetUser.department !== currentUserProfile.department) {
-        return NextResponse.json(
-          { error: 'Can only modify users in your department' },
-          { status: 403 }
-        );
-      }
+    // Authorization check
+    const currentUserData = await userService.getByEmail(currentUser.email);
+    if (!currentUserData) {
+      return NextResponse.json({ error: 'Current user not found' }, { status: 404 });
     }
 
-    // Prepare update data with only allowed fields
-    const allowedFields = [
-      'username',
-      'gameCharacterName', 
-      'rank',
-      'jobTitle',
-      'phoneNumber',
-      'callsign',
-      'assignment',
-      'activity',
-      'status',
-      'timezone',
-      'discordUsername',
-      'isFTO',
-      'isSoloCleared',
-      'role'
-    ];
-
-    const filteredUpdateData = Object.keys(updateData)
-      .filter(key => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        obj[key] = updateData[key];
-        return obj;
-      }, {} as any);
-
-    // Update user
-    const updatedUser = await userService.update(userId, filteredUpdateData);
-
-    // Log the activity
-    const changes = Object.keys(filteredUpdateData).join(', ');
-    await logActivity(
-      currentUserProfile.userId,
-      'update',
-      'user',
-      `Updated ${targetUser.username} profile: ${changes}`,
-      userId
-    );
-
-    // Create notification for the user whose profile was updated
-    if (Object.keys(filteredUpdateData).length > 0) {
-      await notificationService.createProfileUpdateNotification(
-        userId,
-        Object.keys(filteredUpdateData)
-      );
+    // Only super_admin can update any user, admin can update users in same department
+    if (currentUserData.role !== 'super_admin' && 
+        !(currentUserData.role === 'admin' && currentUserData.department === targetUser.department)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    const updatedUser = await userService.update(userId, updateData);
+    
     return NextResponse.json({ 
-      success: true,
-      message: 'User updated successfully',
-      user: updatedUser
+      success: true, 
+      user: updatedUser 
     });
   } catch (error) {
     console.error('Error updating user:', error);
     return NextResponse.json(
       { error: 'Failed to update user' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: userId } = await params;
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    const user = await userService.getById(userId);
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: 'User not found' },
+        { status: 404 }
+      );
+    }
+
+    // Remove sensitive information
+    const { ...safeUser } = user;
+    
+    return NextResponse.json({ user: safeUser });
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch user' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const currentUser = await getCurrentUserFromRequest(request);
+    if (!currentUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id: userId } = await params;
+    
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'User ID is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get current user data for authorization
+    const currentUserData = await userService.getByEmail(currentUser.email);
+    if (!currentUserData) {
+      return NextResponse.json({ error: 'Current user not found' }, { status: 404 });
+    }
+
+    // Only super_admin can delete users
+    if (currentUserData.role !== 'super_admin') {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    }
+
+    // Prevent self-deletion
+    if (userId === currentUserData.$id) {
+      return NextResponse.json(
+        { error: 'Cannot delete your own account' },
+        { status: 400 }
+      );
+    }
+
+    await userService.delete(userId);
+    
+    return NextResponse.json({ 
+      success: true,
+      message: 'User deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete user' },
       { status: 500 }
     );
   }
