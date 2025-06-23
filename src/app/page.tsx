@@ -320,6 +320,12 @@ export default function HomePage() {
                   </div>
                 </div>
               </AnimatedTabsContent>
+              <AnimatedTabsContent key="whitelist" value="whitelist">
+                <div className="text-center">
+                  <h3 className="text-2xl font-bold text-white">Whitelist Access</h3>
+                  <p className="text-slate-400">Content for whitelist server coming soon.</p>
+                </div>
+              </AnimatedTabsContent>
             </AnimatePresence>
           </Tabs>
         </div>

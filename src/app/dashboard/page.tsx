@@ -42,7 +42,7 @@ export default function DashboardPage() {
                     }
                 });
                 if (!response.ok) {
-                    throw new Error(`Failed to load dashboard data: ${response.statusText}`);
+                    throw new Error(`Failed to load dashboard data. Status: ${response.status}`);
                 }
 
                 const data = await response.json();
