@@ -81,9 +81,10 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
                 console.error('❌ Search failed with status:', response.status);
                 setResults([]);
             }
-        } catch {
-            // Error handling
+        } catch (error) {
+            console.error('❌ Search request failed:', error);
             setResults([]);
+        } finally {
             setIsLoading(false);
         }
     }, []);
