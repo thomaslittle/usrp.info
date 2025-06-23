@@ -44,16 +44,9 @@ export async function getCurrentUserFromHeaders(headers: ReadonlyHeaders): Promi
       }
     }
 
-    if (!sessionToken) {
-      const fallbackCookies = headers.get('x-fallback-cookies');
-      if (fallbackCookies) {
-        sessionToken = fallbackCookies;
-      }
-      
-      const authHeader = headers.get('authorization');
-      if (authHeader && authHeader.startsWith('Bearer ')) {
-        sessionToken = authHeader.substring(7);
-      }
+    const authHeader = headers.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      sessionToken = authHeader.substring(7);
     }
     
     if (!sessionToken) {

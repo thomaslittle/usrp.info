@@ -34,12 +34,8 @@ export default function DashboardPage() {
                 setLoading(true);
                 setError(null);
 
-                const sessionToken = getAppwriteSessionToken();
-
                 const response = await fetch('/api/dashboard/stats', {
-                    headers: {
-                        ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
-                    }
+                    credentials: 'include'
                 });
                 if (!response.ok) {
                     throw new Error(`Failed to load dashboard data. Status: ${response.status}`);
