@@ -1,0 +1,162 @@
+"use client";
+
+import React from 'react';
+import Link from 'next/link';
+import { Icon } from '@iconify/react';
+import { Button } from '@/components/ui/button';
+
+
+interface DepartmentConfig {
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+    primaryRoute: string;
+    routes: Array<{
+        name: string;
+        path: string;
+        icon: string;
+        description: string;
+    }>;
+}
+
+interface DepartmentLayoutProps {
+    children: React.ReactNode;
+    config: DepartmentConfig;
+    currentPath?: string;
+}
+
+export function DepartmentLayout({ children, config, currentPath }: DepartmentLayoutProps) {
+    return (
+        <div className="min-h-screen">
+            {/* Header */}
+            <header className=" overflow-hidden bg-gradient-to-r from-purple-900 via-violet-900 to-purple-900 border-b border-purple-500/20">
+
+                <div className="relative container mx-auto px-6 py-6">
+                    <div className="flex items-center justify-between relative z-10">
+                        {/* Logo and Navigation */}
+                        <div className="flex items-center gap-4">
+                            {/* Back to Home */}
+                            <Link href="/" className="flex items-center gap-3 group">
+
+                                <div className="sm:block">
+                                    <img src="/images/unscripted_logo.webp" alt="Unscripted RP" className="w-[168px] h-[26px]" />
+                                    <div className="text-purple-300 text-sm text-right">Resource Portal</div>
+                                </div>
+                            </Link>
+
+                            {/* Department Icon and Name */}
+                            <div className="flex items-center gap-4">
+                                <div className="w-px h-12 bg-purple-500/30"></div>
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-3 bg-gradient-to-br ${config.color} rounded-xl shadow-lg`}>
+                                        <Icon icon={config.icon} className="h-8 w-8 text-white" />
+                                    </div>
+                                    <div>
+                                        <h1 className="text-white font-black text-xl">{config.name}</h1>
+                                        <p className="text-purple-300 text-sm font-light">{config.description}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </header>
+
+            {/* Navigation Bar */}
+            <nav className="sticky top-0 bg-gray-800/50 backdrop-blur-sm border-b border-gray-800 z-40">
+                <div className="container mx-auto px-6">
+                    <div className="flex items-center gap-2 py-4 overflow-x-auto">
+                        {config.routes.map((route) => {
+                            const isActive = currentPath === route.path;
+                            return (
+                                <Link key={route.path} href={route.path}>
+                                    <Button
+                                        variant={isActive ? "default" : "ghost"}
+                                        size="sm"
+                                        className={`flex items-center gap-2 whitespace-nowrap transition-all duration-200 font-light ${isActive
+                                            ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg shadow-purple-500/25'
+                                            : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
+                                            }`}
+                                    >
+                                        <Icon icon={route.icon} className="h-4 w-4" />
+                                        {route.name}
+                                    </Button>
+                                </Link>
+                            );
+                        })}
+                    </div>
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main className="flex-1">
+                {children}
+            </main>
+
+            {/* Footer */}
+            <footer className="bg-gray-950/80 backdrop-blur-sm border-t border-gray-800">
+                <div className="container mx-auto px-6 py-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Department Info */}
+                        <div>
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className={`p-2 bg-gradient-to-br ${config.color} rounded-lg`}>
+                                    <Icon icon={config.icon} className="h-5 w-5 text-white" />
+                                </div>
+                                <div>
+                                    <h3 className="text-white font-bold">{config.name}</h3>
+                                    <p className="text-gray-400 text-sm font-light">{config.description}</p>
+                                </div>
+                            </div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Access comprehensive protocols, procedures, and reference materials.
+                            </p>
+                        </div>
+
+                        {/* Quick Links */}
+                        <div>
+                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                                <Icon icon="heroicons:link-16-solid" className="h-4 w-4 text-purple-400" />
+                                Quick Links
+                            </h3>
+                            <div className="space-y-2">
+                                {config.routes.slice(0, 4).map((route) => (
+                                    <Link
+                                        key={route.path}
+                                        href={route.path}
+                                        className="flex items-center gap-2 text-gray-400 hover:text-purple-400 transition-colors text-sm group"
+                                    >
+                                        <Icon icon={route.icon} className="h-4 w-4 group-hover:text-purple-400" />
+                                        {route.name}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Community Info */}
+                        <div>
+                            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                                <Icon icon="heroicons:users-16-solid" className="h-4 w-4 text-purple-400" />
+                                Community
+                            </h3>
+                            <div className="space-y-3">
+                                <div className="flex items-center gap-3">
+
+                                    <div>
+                                        <div className="text-white text-sm font-semibold">Unscripted Roleplay</div>
+                                    </div>
+                                </div>
+                                <div className="text-gray-400 text-sm font-light">
+                                    Unscripted Roleplay Community • {config.name}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    );
+} 
