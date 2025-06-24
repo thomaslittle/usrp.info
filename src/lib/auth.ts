@@ -188,7 +188,7 @@ export async function loginWithDiscord() {
   try {
     // Use the correct app domains from the allowed hosts list
     const baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://www.usrp.info'
+      ? 'https://usrp.info'
       : 'http://localhost:3000';
     
     // Try to get current user first to check if already logged in
