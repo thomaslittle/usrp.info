@@ -6,53 +6,42 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/use-auth';
 
 function OAuthCallbackContent() {
     const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
     const [errorMessage, setErrorMessage] = useState('');
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { isAuthenticated, isLoading } = useAuth();
 
     useEffect(() => {
-        const handleOAuthCallback = async () => {
-            try {
-                // Check if there's an error in the URL
-                const error = searchParams.get('error');
-                const errorDescription = searchParams.get('error_description');
-
-                if (error) {
-                    if (error === 'user_already_exists' || errorDescription?.includes('already exists')) {
-                        setErrorMessage('An account with this Discord email already exists. Please log in with your email and password, or contact an administrator to link your Discord account.');
-                    } else {
-                        setErrorMessage(`OAuth error: ${errorDescription || error}`);
-                    }
-                    setStatus('error');
-                    return;
-                }
-
-                // Check for success parameters
-                const code = searchParams.get('code');
-                const state = searchParams.get('state');
-
-                if (code && state) {
-                    // OAuth was successful, redirect to dashboard
-                    setStatus('success');
-                    setTimeout(() => {
-                        router.push('/dashboard');
-                    }, 2000);
-                } else {
-                    setErrorMessage('Invalid OAuth callback parameters');
-                    setStatus('error');
-                }
-            } catch (error) {
-                console.error('OAuth callback error:', error);
-                setErrorMessage('An unexpected error occurred during authentication');
-                setStatus('error');
+        // If still loading auth state, do nothing
+        if (isLoading) return;
+        // If authenticated, redirect to dashboard
+        if (isAuthenticated) {
+            setStatus('success');
+            setTimeout(() => {
+                router.replace('/dashboard');
+            }, 1200);
+            return;
+        }
+        // If not authenticated, check for error param
+        const error = searchParams.get('error');
+        const errorDescription = searchParams.get('error_description');
+        if (error) {
+            if (error === 'user_already_exists' || errorDescription?.includes('already exists')) {
+                setErrorMessage('An account with this Discord email already exists. Please log in with your email and password, or contact an administrator to link your Discord account.');
+            } else {
+                setErrorMessage(`OAuth error: ${errorDescription || error}`);
             }
-        };
-
-        handleOAuthCallback();
-    }, [searchParams, router]);
+            setStatus('error');
+            return;
+        }
+        // If not authenticated and no error, show generic error
+        setErrorMessage('Invalid OAuth callback parameters');
+        setStatus('error');
+    }, [isAuthenticated, isLoading, searchParams, router]);
 
     return (
         <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
