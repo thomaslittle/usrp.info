@@ -126,7 +126,7 @@ export default function DashboardLayout({
                     <div className="fixed inset-y-0 left-0 w-72 bg-gray-800/50 backdrop-blur-xl border-r border-white/10 overflow-y-auto">
                         <div className="flex h-20 items-center justify-between px-6">
                             <div className="flex items-center space-x-3">
-                                <img src="/images/wordmark.webp" alt="Unscripted RP" className="h-10 object-contain" />
+                                <img src="/images/wordmark.webp" alt="PENTA UNTITLED PROJECT RP RP" className="h-10 object-contain" />
                             </div>
                             <Button
                                 variant="ghost"

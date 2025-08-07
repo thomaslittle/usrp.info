@@ -614,7 +614,7 @@ export function EMSReferenceGuide() {
                 {/* Footer */}
                 <div className="text-center p-8 bg-gray-900/30 rounded-2xl mt-16 border border-gray-800 backdrop-blur-sm">
                     <p className="text-gray-400 text-sm">
-                        Unscripted Roleplay Community • Emergency Response Reference Guide
+                        PENTA UNTITLED PROJECT RP Roleplay Community • Emergency Response Reference Guide
                     </p>
                 </div>
             </div>

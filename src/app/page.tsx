@@ -64,7 +64,7 @@ export default function HomePage() {
                 <div className="relative">
                   <img
                     src="/images/wordmark.webp"
-                    alt="Unscripted RP"
+                    alt="PENTA UNTITLED PROJECT RP RP"
                     className="w-96 object-contain filter drop-shadow-2xl"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-3xl rounded-full"></div>

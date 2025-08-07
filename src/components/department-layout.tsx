@@ -42,8 +42,8 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
                             {/* Back to Home */}
                             <Link href="/" className="flex items-center gap-3 group ml-0 md:ml-0">
                                 <div>
-                                    <img src="/images/logo-short.png" alt="Unscripted RP" className="w-10 h-10 sm:hidden" />
-                                    <img src="/images/unscripted_logo.webp" alt="Unscripted RP" className="w-[168px] h-[26px] hidden sm:block" />
+                                    <img src="/images/logo-short.png" alt="PENTA UNTITLED PROJECT RP RP" className="w-10 h-10 sm:hidden" />
+                                    <img src="/images/PENTA UNTITLED PROJECT RP_logo.webp" alt="PENTA UNTITLED PROJECT RP RP" className="w-[168px] h-[26px] hidden sm:block" />
                                     <div className="text-purple-300 text-sm text-left md:text-right">Resource Portal</div>
                                 </div>
                             </Link>
@@ -147,11 +147,11 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
                                 <div className="flex items-center gap-3">
 
                                     <div>
-                                        <div className="text-white text-sm font-semibold">Unscripted Roleplay</div>
+                                        <div className="text-white text-sm font-semibold">PENTA UNTITLED PROJECT RP Roleplay</div>
                                     </div>
                                 </div>
                                 <div className="text-gray-400 text-sm font-light">
-                                    Unscripted Roleplay Community • {config.name}
+                                    PENTA UNTITLED PROJECT RP Roleplay Community • {config.name}
                                 </div>
                             </div>
                         </div>

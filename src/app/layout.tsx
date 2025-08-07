@@ -5,8 +5,8 @@ import { UserNav } from '@/components/user-nav';
 import '@/lib/fetch-logger';
 
 export const metadata: Metadata = {
-  title: "Unscripted Resource Portal",
-  description: "Comprehensive resource website for the Unscripted GTA5 roleplay server's EMS department",
+  title: "PENTA UNTITLED PROJECT RP Resource Portal",
+  description: "Comprehensive resource website for the PENTA UNTITLED PROJECT RP GTA5 roleplay server's EMS department",
   icons: {
     icon: "/favicon.ico",
   },

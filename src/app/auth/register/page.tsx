@@ -143,7 +143,7 @@ export default function RegisterPage() {
                     <div className="flex justify-center">
                         <img
                             src="/images/wordmark.webp"
-                            alt="Unscripted RP"
+                            alt="PENTA UNTITLED PROJECT RP RP"
                             className="w-48 object-contain"
                         />
                     </div>

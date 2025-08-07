@@ -1,9 +1,9 @@
-# Unscripted EMS Resource Website - Product Requirements Document
+# PENTA UNTITLED PROJECT RP EMS Resource Website - Product Requirements Document
 
 ## Project Overview
 
 ### Mission Statement
-Create a comprehensive, editable resource website for the Unscripted GTA5 roleplay server's Emergency Medical Services (EMS/TacMed) department, with scalable architecture to support future departments (Police, DOJ, etc.).
+Create a comprehensive, editable resource website for the PENTA UNTITLED PROJECT RP GTA5 roleplay server's Emergency Medical Services (EMS/TacMed) department, with scalable architecture to support future departments (Police, DOJ, etc.).
 
 ### Project Goals
 - Provide centralized access to SOPs, protocols, and reference materials
@@ -336,4 +336,4 @@ API_KEY: "<REDACTED>" // Use environment variable APPWRITE_API_KEY instead
 
 ## Conclusion
 
-This PRD provides a comprehensive roadmap for creating a scalable, professional resource website for the Unscripted roleplay community's EMS department, with clear expansion paths for future departments and features.
+This PRD provides a comprehensive roadmap for creating a scalable, professional resource website for the PENTA UNTITLED PROJECT RP roleplay community's EMS department, with clear expansion paths for future departments and features.

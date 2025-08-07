@@ -49,7 +49,7 @@ function OAuthCallbackContent() {
                 <div className="flex justify-center mb-4">
                     <img
                         src="/images/wordmark.webp"
-                        alt="Unscripted RP"
+                        alt="PENTA UNTITLED PROJECT RP RP"
                         className="w-48 object-contain"
                     />
                 </div>
@@ -115,7 +115,7 @@ function LoadingFallback() {
                 <div className="flex justify-center mb-4">
                     <img
                         src="/images/wordmark.webp"
-                        alt="Unscripted RP"
+                        alt="PENTA UNTITLED PROJECT RP RP"
                         className="w-48 object-contain"
                     />
                 </div>

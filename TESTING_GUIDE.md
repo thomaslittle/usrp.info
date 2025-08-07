@@ -1,7 +1,7 @@
 # 🧪 Version Management System Testing Guide
 
 ## Overview
-This guide will help you test the comprehensive version management system that has been implemented for the Unscripted EMS content management platform.
+This guide will help you test the comprehensive version management system that has been implemented for the PENTA UNTITLED PROJECT RP EMS content management platform.
 
 ## ✅ Pre-Testing Checklist
 

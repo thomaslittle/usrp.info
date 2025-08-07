@@ -1,6 +1,6 @@
-# Unscripted EMS Resource Website
+# PENTA UNTITLED PROJECT RP EMS Resource Website
 
-A comprehensive, editable resource website for the Unscripted GTA5 roleplay server's EMS (EMS/TacMed) department, with scalable architecture to support future departments (Police, DOJ, etc.).
+A comprehensive, editable resource website for the PENTA UNTITLED PROJECT RP GTA5 roleplay server's EMS (EMS/TacMed) department, with scalable architecture to support future departments (Police, DOJ, etc.).
 
 ## 🚀 Features
 
@@ -169,12 +169,12 @@ The architecture supports easy addition of new departments:
 
 ## 📝 License
 
-This project is for the Unscripted Roleplay Community.
+This project is for the PENTA UNTITLED PROJECT RP Roleplay Community.
 
 ## 🤝 Contributing
 
-This is a private project for the Unscripted community. For questions or contributions, contact the development team.
+This is a private project for the PENTA UNTITLED PROJECT RP community. For questions or contributions, contact the development team.
 
 ---
 
-**Unscripted Roleplay Community • EMS Resource Portal**
+**PENTA UNTITLED PROJECT RP Roleplay Community • EMS Resource Portal**
