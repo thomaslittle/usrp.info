@@ -131,7 +131,7 @@ export const departmentService = {
     }
   },
 
-  async update(departmentId: string, updates: Partial<Department>) {
+  async update(departmentId: string, updates: Partial<Omit<Department, '$id' | '$createdAt' | '$updatedAt'>>) {
     return await adminDatabases.updateDocument(DATABASE_ID, COLLECTIONS.DEPARTMENTS, departmentId, updates);
   }
 };
