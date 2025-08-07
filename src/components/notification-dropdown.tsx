@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,13 +20,7 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
     const [isLoading, setIsLoading] = useState(true);
     const { user } = useAuthStore();
 
-    useEffect(() => {
-        if (user) {
-            loadNotifications();
-        }
-    }, [user]);
-
-    const loadNotifications = async () => {
+    const loadNotifications = useCallback(async () => {
         if (!user) return;
 
         try {
@@ -50,7 +44,13 @@ export function NotificationDropdown({ className }: NotificationDropdownProps) {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user]);
+
+    useEffect(() => {
+        if (user) {
+            loadNotifications();
+        }
+    }, [user, loadNotifications]);
 
     const markAsRead = async (notificationId: string) => {
         try {

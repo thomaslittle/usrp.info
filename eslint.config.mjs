@@ -14,8 +14,8 @@ const eslintConfig = [
   {
     rules: {
       // Disable rules that are causing build failures
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-explicit-any": "warn", 
+      "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
+      "@typescript-eslint/no-explicit-any": "off", 
       "react/no-unescaped-entities": "warn",
       "react-hooks/exhaustive-deps": "warn",
       "react/jsx-no-undef": "warn",

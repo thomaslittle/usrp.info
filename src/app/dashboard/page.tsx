@@ -100,7 +100,7 @@ export default function DashboardPage() {
         };
 
         loadDashboardData();
-    }, [authLoading, user, userProfile]);
+    }, [authLoading, user, userProfile, isAuthenticated]);
 
     if (loading) {
         return (

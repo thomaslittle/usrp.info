@@ -14,7 +14,7 @@ import { User } from '@/types';
 import { cn } from '@/lib/utils';
 
 export default function ProfilePage() {
-    const { user: authUser, userProfile, isLoading: authLoading } = useAuth();
+    const { user: authUser, isLoading: authLoading } = useAuth();
     const searchParams = useSearchParams();
     const viewingUserId = searchParams.get('user');
     const isViewingOtherUser = !!viewingUserId;

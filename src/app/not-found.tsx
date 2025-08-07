@@ -24,7 +24,7 @@ export default function NotFound() {
                         THE PAGE WAS NOT FOUND
                     </h2>
                     <p className="text-gray-400 mb-6">
-                        The page you&apos;re looking for doesn&apos;t exist or has been moved. Let's get you back to where you need to be.
+                        The page you&apos;re looking for doesn&apos;t exist or has been moved. Let&apos;s get you back to where you need to be.
                     </p>
                 </div>
 

@@ -1,8 +1,6 @@
 import { account } from './appwrite';
-import { adminClient, adminAccount } from './appwrite-server';
 import { UserRole } from '@/types';
-import { Models, OAuthProvider, Client, Account } from 'appwrite';
-import { NextRequest } from 'next/server';
+import { Models, OAuthProvider } from 'appwrite';
 import { ReadonlyHeaders } from 'next/dist/server/web/spec-extension/adapters/headers';
 // import { userService } from './appwrite';
 import { User } from '@/types';

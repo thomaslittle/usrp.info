@@ -127,16 +127,16 @@ export function GlobalSearch({ className }: GlobalSearchProps) {
         }
     };
 
-    const getDepartmentColor = (department: string) => {
-        switch (department) {
-            case 'ems': return 'bg-purple-500/20 text-purple-300';
-            case 'police': return 'bg-blue-500/20 text-blue-300';
-            case 'fire': return 'bg-red-500/20 text-red-300';
-            case 'doj': return 'bg-yellow-500/20 text-yellow-300';
-            case 'government': return 'bg-green-500/20 text-green-300';
-            default: return 'bg-gray-500/20 text-gray-300';
-        }
-    };
+    // const getDepartmentColor = (department: string) => {
+    //     switch (department) {
+    //         case 'ems': return 'bg-purple-500/20 text-purple-300';
+    //         case 'police': return 'bg-blue-500/20 text-blue-300';
+    //         case 'fire': return 'bg-red-500/20 text-red-300';
+    //         case 'doj': return 'bg-yellow-500/20 text-yellow-300';
+    //         case 'government': return 'bg-green-500/20 text-green-300';
+    //         default: return 'bg-gray-500/20 text-gray-300';
+    //     }
+    // };
 
     const getStatusColor = (status: string) => {
         switch (status) {

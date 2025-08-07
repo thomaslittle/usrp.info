@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import Link from 'next/link';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface ActivityLog {
@@ -17,8 +17,7 @@ interface ActivityLog {
 }
 
 async function getActivityLogs(): Promise<ActivityLog[]> {
-    const headerInstance = await headers();
-    const cookieHeader = headerInstance.get('cookie');
+    await headers(); // Access headers to maintain server component behavior
 
     // For now, return empty array since we don't have activity logs API yet
     // This prevents the 404 error and provides a placeholder page

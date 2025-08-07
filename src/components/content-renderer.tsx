@@ -31,7 +31,7 @@ export function ContentRenderer({ content, className = '' }: ContentRendererProp
                 </div>
             );
         }
-    } catch (error) {
+    } catch {
         // If it's not JSON, treat it as HTML from TinyMCE
         // Check if the content looks like it contains HTML tags
         const hasHTMLTags = /<[^>]*>/g.test(content.content);
@@ -313,7 +313,7 @@ export function ContentRenderer({ content, className = '' }: ContentRendererProp
                 <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                        table: ({ node, ...props }) => (
+                        table: ({ ...props }) => (
                             <div className="overflow-x-auto rounded-xl border border-gray-800 bg-gray-900/70 my-6 shadow-lg">
                                 <table
                                     className="min-w-full text-sm text-left text-gray-300"
@@ -321,21 +321,21 @@ export function ContentRenderer({ content, className = '' }: ContentRendererProp
                                 />
                             </div>
                         ),
-                        thead: ({ node, ...props }) => (
+                        thead: ({ ...props }) => (
                             <thead className="bg-gradient-to-r from-purple-900/60 to-violet-900/60">
                                 {props.children}
                             </thead>
                         ),
-                        th: ({ node, ...props }) => (
+                        th: ({ ...props }) => (
                             <th
                                 className="px-3 py-2 font-semibold text-white border-b border-gray-800"
                                 {...props}
                             />
                         ),
-                        tr: ({ node, ...props }) => (
+                        tr: ({ ...props }) => (
                             <tr className="hover:bg-purple-900/10 transition-colors">{props.children}</tr>
                         ),
-                        td: ({ node, ...props }) => (
+                        td: ({ ...props }) => (
                             <td
                                 className="px-3 py-2 border-b border-gray-800"
                                 {...props}

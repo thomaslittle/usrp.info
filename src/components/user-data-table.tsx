@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -14,7 +14,6 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { Icon } from "@iconify/react"
-import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -43,12 +42,10 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { UserAvatar } from "@/components/user-avatar"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Checkbox as FormCheckbox } from "@/components/ui/checkbox"
 import { User, UserRole } from "@/types"
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 interface UserDataTableProps {
     data: User[]
@@ -170,7 +167,7 @@ export function UserDataTable({
         }
     }, [editingUser]);
 
-    const canManageUser = (user: User) => {
+    const canManageUser = (_user: User) => {
         if (!currentUser) return false
         if (currentUser.role === 'super_admin') return true
         return false

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { userService, logActivity, notificationService } from '@/lib/database';
+import { userService, logActivity } from '@/lib/database';
 import { getCurrentUserFromRequest } from '@/lib/auth';
 
 export async function PATCH(
@@ -14,11 +14,11 @@ export async function PATCH(
 
     const { id: userId } = await params;
     const body = await request.json();
-    const { role, currentUserEmail } = body;
+    const { role } = body;
 
-    if (!userId || !role || !currentUserEmail) {
+    if (!userId || !role) {
       return NextResponse.json(
-        { error: 'User ID, role, and current user email are required' },
+        { error: 'User ID and role are required' },
         { status: 400 }
       );
     }
@@ -144,7 +144,7 @@ export async function PUT(
     const updateData = await request.json();
     
     // Remove fields that shouldn't be sent to database
-    const { currentUserEmail, ...updateFields } = updateData;
+    const { ...updateFields } = updateData;
     
     // Remove any system fields that start with $ and other reserved fields
     const validUpdateData = Object.keys(updateFields).reduce((acc, key) => {

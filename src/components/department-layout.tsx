@@ -29,8 +29,8 @@ interface DepartmentLayoutProps {
     currentUser?: User | null;
 }
 
-export function DepartmentLayout({ children, config, currentPath, currentUser }: DepartmentLayoutProps) {
-    const isAdmin = currentUser && ['admin', 'super_admin'].includes(currentUser.role);
+export function DepartmentLayout({ children, config, currentPath }: DepartmentLayoutProps) {
+    // const isAdmin = currentUser && ['admin', 'super_admin'].includes(currentUser.role);
 
     return (
         <div className="min-h-screen">

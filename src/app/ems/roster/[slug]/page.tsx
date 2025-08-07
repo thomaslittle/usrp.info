@@ -91,9 +91,9 @@ export default async function RosterPage({ params }: RosterPageProps) {
 
     const { users, rosterInfo } = data;
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        // Handle form submission
-    };
+    // const handleSubmit = async (_e: React.FormEvent) => {
+    //     // Handle form submission
+    // };
 
     return (
         <DepartmentLayout config={emsConfig} currentPath={`/ems/roster/${slug}`}>

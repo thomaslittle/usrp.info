@@ -5,13 +5,13 @@ import { Icon } from '@iconify/react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Preloader } from '@/components/ui/preloader';
 import { UserDataTable } from '@/components/user-data-table';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -245,6 +245,7 @@ export default function UserManagementPage() {
         setFilteredUsers(sortedFiltered);
     }, [users, filters]);
 
+    /*
     const handleRoleChange = async (userId: string, newRole: UserRole) => {
         if (!currentUser) return;
         if (currentUser.role !== 'super_admin' && currentUser.role !== 'admin') {
@@ -288,6 +289,7 @@ export default function UserManagementPage() {
             alert(error instanceof Error ? error.message : 'An unknown error occurred');
         }
     };
+    */
 
     const handleEditUser = (user: User) => {
         setEditingUser(user);
@@ -351,6 +353,7 @@ export default function UserManagementPage() {
         }
     };
 
+    /*
     const canModifyUser = (user: User) => {
         if (!currentUser) return false;
         if (currentUser.role === 'super_admin') {
@@ -361,6 +364,7 @@ export default function UserManagementPage() {
         }
         return false;
     };
+    */
 
     if (loading) {
         return <div className="p-6"><Preloader text="Loading users..." size="md" /></div>;
@@ -377,7 +381,7 @@ export default function UserManagementPage() {
                         <p>You do not have permission to manage users.</p>
                         {currentUser.role === 'viewer' && (
                             <div className="mt-4">
-                                <p>Your current role is 'Viewer'. You need to be an 'Admin' or 'Super Admin' to access this page.</p>
+                                <p>Your current role is &apos;Viewer&apos;. You need to be an &apos;Admin&apos; or &apos;Super Admin&apos; to access this page.</p>
                                 {!users.some(u => u.role === 'super_admin') && (
                                     <div className="mt-4 p-4 bg-yellow-900/50 border border-yellow-700 rounded-lg">
                                         <p className="font-bold text-yellow-300">System Setup Required</p>

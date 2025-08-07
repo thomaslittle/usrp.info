@@ -297,7 +297,7 @@ const CoronerProcedures = () => (
         <div className="space-y-6">
             <div>
                 <h3 className="text-xl font-semibold text-white mb-4">State Announcement Template</h3>
-                <p className="bg-gray-800/50 p-4 rounded-md italic text-purple-300">"{coronerInfo.announcementTemplate}"</p>
+                <p className="bg-gray-800/50 p-4 rounded-md italic text-purple-300">&ldquo;{coronerInfo.announcementTemplate}&rdquo;</p>
             </div>
             <div>
                 <h3 className="text-xl font-semibold text-white mb-4">Mortician Practices</h3>

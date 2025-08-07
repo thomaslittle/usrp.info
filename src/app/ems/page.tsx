@@ -4,11 +4,8 @@ import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { DepartmentLayout } from '@/components/department-layout';
-import { departmentService, contentService, userService } from '@/lib/database';
+import { departmentService, contentService } from '@/lib/database';
 import { Content, Department, User } from '@/types';
-import { getCurrentUserFromRequest } from '@/lib/auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 const emsConfig = {
     name: 'EMS',
@@ -68,7 +65,7 @@ async function getEMSContent(): Promise<{ content: Content[], department: Depart
 }
 
 export default async function EMSPage({ searchParams }: EMSPageProps) {
-    const searchParamsData = await searchParams;
+    await searchParams; // Consume the parameter
     const { content, department, currentUser } = await getEMSContent();
 
     // Check if user can edit content

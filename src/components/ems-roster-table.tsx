@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 import {
     ColumnDef,
     ColumnFiltersState,
