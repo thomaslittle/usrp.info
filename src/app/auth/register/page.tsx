@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -141,10 +142,13 @@ export default function RegisterPage() {
             <Card className="w-full max-w-lg mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
                 <CardHeader className="text-center space-y-4">
                     <div className="flex justify-center">
-                        <img
+                        <Image
                             src="/images/wordmark.webp"
-                            alt="PENTA UNTITLED PROJECT RP RP"
-                            className="w-48 object-contain"
+                            alt="PENTA UNTITLED PROJECT RP"
+                            width={192}
+                            height={64}
+                            className="object-contain"
+                            priority
                         />
                     </div>
                     <CardTitle className="text-white text-2xl font-bold">Create Account</CardTitle>

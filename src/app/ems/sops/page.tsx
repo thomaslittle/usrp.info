@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { DepartmentLayout } from '@/components/department-layout';
 import { SOPContent } from '@/components/sop-content';
 
@@ -47,7 +48,7 @@ export default function EMSSOPsPage() {
         <DepartmentLayout config={emsConfig} currentPath="/ems/sops">
             <div className="relative py-8">
                 <div className="absolute inset-0 -z-10">
-                    <img src="/images/bg.webp" alt="background" className="object-cover w-full h-full" />
+                    <Image src="/images/bg.webp" alt="background" fill className="object-cover" quality={80} />
                     <div className="absolute inset-0 bg-black/50"></div>
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10"></div>
                 </div>

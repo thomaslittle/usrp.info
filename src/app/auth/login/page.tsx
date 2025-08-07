@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -75,10 +76,12 @@ function LoginPageContent() {
             <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
                 <CardHeader className="text-center space-y-4">
                     <div className="flex justify-center">
-                        <img
+                        <Image
                             src="/images/wordmark.webp"
-                            alt="PENTA UNTITLED PROJECT RP RP"
-                            className="w-48 object-contain"
+                            alt="PENTA UNTITLED PROJECT RP"
+                            width={192}
+                            height={50}
+                            className="object-contain"
                         />
                     </div>
                     <p className="text-gray-400">Sign in to your account to continue</p>
@@ -190,10 +193,12 @@ function LoginPageLoading() {
             <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
                 <CardHeader className="text-center space-y-4">
                     <div className="flex justify-center">
-                        <img
+                        <Image
                             src="/images/wordmark.webp"
-                            alt="PENTA UNTITLED PROJECT RP RP"
-                            className="w-48 object-contain"
+                            alt="PENTA UNTITLED PROJECT RP"
+                            width={192}
+                            height={50}
+                            className="object-contain"
                         />
                     </div>
                     <p className="text-gray-400">Loading...</p>

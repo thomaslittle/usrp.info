@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,6 @@ const AnimatedTabsContent = ({ value, children }: { value: string; children: Rea
 };
 
 export default function HomePage() {
-  const [isClient, setIsClient] = useState(false);
 
   const departmentSections = {
     lspd: [
@@ -45,10 +45,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* Background Effects */}
-      <img
+      <Image
         src="/images/bg.webp"
         alt="Background"
-        className="absolute inset-0 w-full h-full object-cover -z-10"
+        fill
+        className="object-cover -z-10"
+        priority
+        quality={80}
       />
       <div className="absolute inset-0 bg-black/50"></div>
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10"></div>
@@ -62,10 +65,13 @@ export default function HomePage() {
             <div className="text-center">
               <div className="flex justify-center">
                 <div className="relative">
-                  <img
+                  <Image
                     src="/images/wordmark.webp"
-                    alt="PENTA UNTITLED PROJECT RP RP"
-                    className="w-96 object-contain filter drop-shadow-2xl"
+                    alt="PENTA UNTITLED PROJECT RP"
+                    width={384}
+                    height={100}
+                    className="object-contain filter drop-shadow-2xl"
+                    priority
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-3xl rounded-full"></div>
                 </div>

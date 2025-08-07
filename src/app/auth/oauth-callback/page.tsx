@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/react';
@@ -47,10 +48,13 @@ function OAuthCallbackContent() {
         <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
             <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
-                    <img
+                    <Image
                         src="/images/wordmark.webp"
-                        alt="PENTA UNTITLED PROJECT RP RP"
-                        className="w-48 object-contain"
+                        alt="PENTA UNTITLED PROJECT RP"
+                        width={192}
+                        height={64}
+                        className="object-contain"
+                        priority
                     />
                 </div>
                 <CardTitle className="text-white">
@@ -113,10 +117,13 @@ function LoadingFallback() {
         <Card className="w-full max-w-md mx-auto bg-gray-900/70 border border-gray-800 shadow-xl">
             <CardHeader className="text-center">
                 <div className="flex justify-center mb-4">
-                    <img
+                    <Image
                         src="/images/wordmark.webp"
-                        alt="PENTA UNTITLED PROJECT RP RP"
-                        className="w-48 object-contain"
+                        alt="PENTA UNTITLED PROJECT RP"
+                        width={192}
+                        height={64}
+                        className="object-contain"
+                        priority
                     />
                 </div>
                 <CardTitle className="text-white">Loading...</CardTitle>

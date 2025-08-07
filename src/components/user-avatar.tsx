@@ -16,8 +16,13 @@ export function UserAvatar({ user, className = '' }: UserAvatarProps) {
             : 'U';
 
     return (
-        <div className={`rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center overflow-hidden ${className}`} style={{ width: 40, height: 40 }}>
-            <span className="text-white font-bold text-lg">{initials}</span>
+        <div 
+            className={`rounded-full bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center overflow-hidden ${className}`} 
+            style={{ width: 40, height: 40 }}
+            role="img"
+            aria-label={`Avatar for ${user.username || user.gameCharacterName || 'User'}`}
+        >
+            <span className="text-white font-bold text-lg" aria-hidden="true">{initials}</span>
         </div>
     );
 } 

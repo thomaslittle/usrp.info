@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
 import { Preloader } from '@/components/ui/preloader';
@@ -111,10 +112,12 @@ export default function DashboardLayout({
     return (
         <div className="min-h-screen relative overflow-hidden">
             {/* Background Effects */}
-            <img
+            <Image
                 src="/images/bg.webp"
                 alt="Background"
-                className="absolute inset-0 w-full h-full object-cover -z-10"
+                fill
+                className="object-cover -z-10"
+                quality={80}
             />
             <div className="absolute inset-0 bg-black/50 -z-10"></div>
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10 -z-10"></div>
@@ -126,7 +129,7 @@ export default function DashboardLayout({
                     <div className="fixed inset-y-0 left-0 w-72 bg-gray-800/50 backdrop-blur-xl border-r border-white/10 overflow-y-auto">
                         <div className="flex h-20 items-center justify-between px-6">
                             <div className="flex items-center space-x-3">
-                                <img src="/images/wordmark.webp" alt="PENTA UNTITLED PROJECT RP RP" className="h-10 object-contain" />
+                                <Image src="/images/wordmark.webp" alt="PENTA UNTITLED PROJECT RP" width={200} height={40} className="object-contain" />
                             </div>
                             <Button
                                 variant="ghost"
@@ -165,10 +168,12 @@ export default function DashboardLayout({
                     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-800/50 backdrop-blur-xl border-r border-white/10 px-6 pb-4">
                         <div className="flex h-20 shrink-0 items-center">
                             <div className="flex items-center gap-4">
-                                <img
+                                <Image
                                     src="/images/logo-short.png"
                                     alt="Logo"
-                                    className="h-10 w-10 object-contain"
+                                    width={40}
+                                    height={40}
+                                    className="object-contain"
                                 />
                                 <div className="w-px h-12 bg-gray-700"></div>
                                 <div className="flex flex-col">
@@ -216,7 +221,7 @@ export default function DashboardLayout({
                             <Icon icon="heroicons:bars-3-16-solid" className="h-5 w-5" />
                         </Button>
                         <div className="w-px h-8 bg-gray-700 mx-4"></div>
-                        <img src="/images/logo-short.png" alt="Logo" className="h-8 w-8 object-contain" />
+                        <Image src="/images/logo-short.png" alt="Logo" width={32} height={32} className="object-contain" />
                         <div className="flex-1" />
                     </div>
 

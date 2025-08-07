@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Icon } from '@iconify/react';
 import { Button } from '@/components/ui/button';
@@ -98,7 +99,7 @@ export default async function RosterPage({ params }: RosterPageProps) {
         <DepartmentLayout config={emsConfig} currentPath={`/ems/roster/${slug}`}>
             <div className="relative py-8">
                 <div className="absolute inset-0 -z-10">
-                    <img src="/images/bg.webp" alt="background" className="object-cover w-full h-full" />
+                    <Image src="/images/bg.webp" alt="background" fill className="object-cover" quality={80} />
                     <div className="absolute inset-0 bg-black/50"></div>
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-blue-500/10"></div>
                 </div>
