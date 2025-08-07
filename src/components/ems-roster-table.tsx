@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { UserAvatar } from "@/components/user-avatar"
+import { UserHoverCard } from "@/components/user-hover-card"
+import { sortUsersByRank } from "@/lib/rank-utils"
 import { User } from "@/types"
 
 interface EMSRosterTableProps {
@@ -47,6 +49,8 @@ interface EMSRosterTableProps {
 }
 
 const getRankColor = (rank: string) => {
+    if (!rank) return 'text-gray-400';
+
     const lowerRank = rank.toLowerCase();
     if (lowerRank.includes('chief') || lowerRank.includes('head')) {
         return 'text-yellow-400 font-bold';
@@ -128,6 +132,9 @@ export function EMSRosterTable({ data }: EMSRosterTableProps) {
     const [rowSelection, setRowSelection] = React.useState({})
     const [globalFilter, setGlobalFilter] = React.useState("")
 
+    // Sort data by rank before passing to table
+    const sortedData = React.useMemo(() => sortUsersByRank(data), [data])
+
     const columns: ColumnDef<User>[] = [
         {
             accessorKey: "gameCharacterName",
@@ -153,7 +160,11 @@ export function EMSRosterTable({ data }: EMSRosterTableProps) {
                         <UserAvatar user={user} className="w-8 h-8" />
                         <div>
                             <div className="font-medium text-white">
-                                {user.gameCharacterName || user.username}
+                                <UserHoverCard user={user}>
+                                    <span className="cursor-pointer hover:text-blue-300 transition-colors">
+                                        {user.gameCharacterName || user.username}
+                                    </span>
+                                </UserHoverCard>
                             </div>
                             <div className="text-sm text-gray-400">
                                 @{user.username}
@@ -314,7 +325,7 @@ export function EMSRosterTable({ data }: EMSRosterTableProps) {
     ]
 
     const table = useReactTable({
-        data,
+        data: sortedData,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -328,7 +339,7 @@ export function EMSRosterTable({ data }: EMSRosterTableProps) {
         globalFilterFn: globalFilterFn,
         initialState: {
             pagination: {
-                pageSize: 25,
+                pageSize: 50,
             },
         },
         state: {

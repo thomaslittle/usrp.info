@@ -2,18 +2,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Preloader } from '@/components/ui/preloader';
 import { UserDataTable } from '@/components/user-data-table';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { UserAvatar } from '@/components/user-avatar';
+import { UserHoverCard } from '@/components/user-hover-card';
+import { sortUsersByRank } from '@/lib/rank-utils';
 import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { getAppwriteSessionToken, cn } from '@/lib/utils';
@@ -55,7 +60,9 @@ const getRankColor = (rank: string) => {
 };
 
 interface EditUserFormData {
+    email: string;
     username: string;
+    department: 'ems' | 'police' | 'doj' | 'fire' | 'government';
     gameCharacterName: string;
     rank: string;
     jobTitle: string;
@@ -73,6 +80,7 @@ interface EditUserFormData {
     isAviationCert: boolean;
     isPsychNeuro: boolean;
     role: UserRole;
+    linkedUserId: string;
 }
 
 export default function UserManagementPage() {
@@ -85,7 +93,9 @@ export default function UserManagementPage() {
     const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
     const [editingUser, setEditingUser] = useState<User | null>(null);
     const [editFormData, setEditFormData] = useState<EditUserFormData>({
+        email: '',
         username: '',
+        department: 'ems',
         gameCharacterName: '',
         rank: '',
         jobTitle: '',
@@ -102,9 +112,12 @@ export default function UserManagementPage() {
         isCoPilotCert: false,
         isAviationCert: false,
         isPsychNeuro: false,
-        role: 'viewer'
+        role: 'viewer',
+        linkedUserId: ''
     });
     const [saveLoading, setSaveLoading] = useState(false);
+    const [comboboxOpen, setComboboxOpen] = useState(false);
+    const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false);
     const [filters, setFilters] = useState({
         department: 'all',
         role: 'all',
@@ -144,20 +157,20 @@ export default function UserManagementPage() {
                 return;
             }
 
-            const usersResponse = await fetch(`/api/users?email=${encodeURIComponent(authUser.email)}`, {
-                headers: {
-                    ...(sessionToken && { 'X-Fallback-Cookies': sessionToken })
-                }
-            });
+            const usersResponse = await fetch(`/api/users?email=${encodeURIComponent(authUser.email)}&limit=1000`);
             if (!usersResponse.ok) {
                 console.error('Failed to load users');
                 setLoading(false);
                 return;
             }
             const usersData = await usersResponse.json();
+            const allUsers = usersData.users as User[];
 
-            setUsers(usersData.users as User[]);
-            setFilteredUsers(usersData.users as User[]);
+            // Sort users by rank before setting state
+            const sortedUsers = sortUsersByRank(allUsers);
+
+            setUsers(sortedUsers);
+            setFilteredUsers(sortedUsers);
         } catch (error) {
             console.error('Error loading users:', error);
         } finally {
@@ -227,7 +240,9 @@ export default function UserManagementPage() {
             );
         }
 
-        setFilteredUsers(filtered);
+        // Apply rank sorting to filtered results
+        const sortedFiltered = sortUsersByRank(filtered);
+        setFilteredUsers(sortedFiltered);
     }, [users, filters]);
 
     const handleRoleChange = async (userId: string, newRole: UserRole) => {
@@ -277,7 +292,9 @@ export default function UserManagementPage() {
     const handleEditUser = (user: User) => {
         setEditingUser(user);
         setEditFormData({
+            email: user.email,
             username: user.username,
+            department: user.department,
             gameCharacterName: user.gameCharacterName || '',
             rank: user.rank || '',
             jobTitle: user.jobTitle || '',
@@ -294,7 +311,8 @@ export default function UserManagementPage() {
             isCoPilotCert: user.isCoPilotCert || false,
             isAviationCert: user.isAviationCert || false,
             isPsychNeuro: user.isPsychNeuro || false,
-            role: user.role
+            role: user.role,
+            linkedUserId: user.linkedUserId || ''
         });
     };
 
@@ -304,7 +322,7 @@ export default function UserManagementPage() {
         setSaveLoading(true);
         try {
             const response = await fetch(`/api/users/${editingUser.$id}`, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -322,6 +340,9 @@ export default function UserManagementPage() {
             const updatedUser = await response.json();
             setUsers(prevUsers => prevUsers.map(u => (u.$id === updatedUser.$id ? updatedUser : u)));
             setEditingUser(null);
+
+            // Reload users to ensure linked user data is properly updated
+            await loadUsers();
         } catch (error) {
             console.error('Error saving user:', error);
             alert(error instanceof Error ? error.message : 'An unknown error occurred');
@@ -539,14 +560,11 @@ export default function UserManagementPage() {
                             onEditUser={async (userId: string, userData: Partial<User>) => {
                                 try {
                                     const response = await fetch(`/api/users/${userId}`, {
-                                        method: 'PATCH',
+                                        method: 'PUT',
                                         headers: {
                                             'Content-Type': 'application/json',
                                         },
-                                        body: JSON.stringify({
-                                            ...userData,
-                                            currentUserEmail: currentUser?.email,
-                                        }),
+                                        body: JSON.stringify(userData),
                                     });
 
                                     if (!response.ok) {
@@ -695,7 +713,14 @@ export default function UserManagementPage() {
                                                 />
                                                 <UserAvatar user={user} className="w-12 h-12" />
                                                 <div className="flex-1 min-w-0">
-                                                    <h3 className="font-medium text-white truncate">{user.username}</h3>
+                                                    <h3 className="font-medium text-white truncate">
+                                                        <UserHoverCard user={user}>
+                                                            <span className="cursor-pointer hover:text-blue-300 transition-colors">
+                                                                {user.gameCharacterName || user.username}
+                                                                {user.linkedUser && <span className="text-green-400 ml-1">●</span>}
+                                                            </span>
+                                                        </UserHoverCard>
+                                                    </h3>
                                                     <p className={`text-sm truncate ${getRankColor(user.rank || 'Unknown')}`}>
                                                         {user.rank || 'Unknown Rank'}
                                                     </p>
@@ -773,6 +798,17 @@ export default function UserManagementPage() {
                                     <div className="grid gap-4 py-4">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
+                                                <Label htmlFor="email" className="block mb-2">Email</Label>
+                                                <Input
+                                                    id="email"
+                                                    type="email"
+                                                    value={editFormData.email}
+                                                    onChange={(e) => setEditFormData(prev => ({ ...prev, email: e.target.value }))}
+                                                    className="bg-gray-800/70 border border-gray-700/50 text-white placeholder:text-gray-400"
+                                                    disabled={currentUser?.role !== 'super_admin'}
+                                                />
+                                            </div>
+                                            <div>
                                                 <Label htmlFor="username" className="block mb-2">Username</Label>
                                                 <Input
                                                     id="username"
@@ -780,6 +816,28 @@ export default function UserManagementPage() {
                                                     onChange={(e) => setEditFormData(prev => ({ ...prev, username: e.target.value }))}
                                                     className="bg-gray-800/70 border border-gray-700/50 text-white placeholder:text-gray-400"
                                                 />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <Label htmlFor="department" className="block mb-2">Department</Label>
+                                                <Select
+                                                    value={editFormData.department}
+                                                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, department: value as 'ems' | 'police' | 'doj' | 'fire' | 'government' }))}
+                                                    disabled={currentUser?.role !== 'super_admin'}
+                                                >
+                                                    <SelectTrigger className="bg-gray-800/70 border border-gray-700/50 text-white">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="bg-gray-800/90 border border-gray-700/50 backdrop-blur-md">
+                                                        <SelectItem value="ems" className="text-gray-300">EMS</SelectItem>
+                                                        <SelectItem value="police" className="text-gray-300">Police</SelectItem>
+                                                        <SelectItem value="fire" className="text-gray-300">Fire</SelectItem>
+                                                        <SelectItem value="doj" className="text-gray-300">DOJ</SelectItem>
+                                                        <SelectItem value="government" className="text-gray-300">Government</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </div>
                                             <div>
                                                 <Label htmlFor="gameCharacterName" className="block mb-2">Game Character Name</Label>
@@ -925,6 +983,79 @@ export default function UserManagementPage() {
                                                     </SelectContent>
                                                 </Select>
                                             </div>
+                                            <div>
+                                                <Label htmlFor="linkedUserId" className="block mb-2">
+                                                    Link to Auth User
+                                                    <span className="text-xs text-gray-400 block">Connect this character to a real person</span>
+                                                </Label>
+                                                <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                                                    <PopoverTrigger asChild>
+                                                        <Button
+                                                            variant="outline"
+                                                            role="combobox"
+                                                            aria-expanded={comboboxOpen}
+                                                            className="w-full justify-between bg-gray-800/70 border border-gray-700/50 text-white hover:bg-gray-700/70"
+                                                        >
+                                                            {editFormData.linkedUserId && editingUser?.linkedUser
+                                                                ? `${editingUser.linkedUser.username} (${editingUser.linkedUser.email?.substring(0, 2)}***@${editingUser.linkedUser.email?.split('@')[1] || 'unknown'})`
+                                                                : editFormData.linkedUserId
+                                                                    ? users.find(u => u.$id === editFormData.linkedUserId)?.username || 'Unknown User'
+                                                                    : 'Select user...'}
+                                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                                        </Button>
+                                                    </PopoverTrigger>
+                                                    <PopoverContent className="w-full p-0 bg-gray-800/95 border border-gray-700/50 backdrop-blur-md">
+                                                        <Command className="bg-transparent">
+                                                            <CommandInput placeholder="Search users..." className="text-white" />
+                                                            <CommandEmpty className="text-gray-400">No user found.</CommandEmpty>
+                                                            <CommandGroup>
+                                                                <CommandItem
+                                                                    value="none"
+                                                                    onSelect={() => {
+                                                                        if (editFormData.linkedUserId) {
+                                                                            setShowUnlinkConfirm(true);
+                                                                        } else {
+                                                                            setEditFormData(prev => ({ ...prev, linkedUserId: '' }));
+                                                                        }
+                                                                        setComboboxOpen(false);
+                                                                    }}
+                                                                    className="text-gray-300 hover:bg-gray-700/50"
+                                                                >
+                                                                    <Check
+                                                                        className={`mr-2 h-4 w-4 ${editFormData.linkedUserId === '' ? 'opacity-100' : 'opacity-0'}`}
+                                                                    />
+                                                                    {editFormData.linkedUserId ? (
+                                                                        <span className="text-red-400">🔗 Unlink Account</span>
+                                                                    ) : (
+                                                                        <span>No Link</span>
+                                                                    )}
+                                                                </CommandItem>
+                                                                {users
+                                                                    .filter(user =>
+                                                                        user.$id !== editingUser?.$id &&
+                                                                        !user.email?.includes('@ems.usrp.info') // Only show auth users for linking
+                                                                    )
+                                                                    .map((user) => (
+                                                                        <CommandItem
+                                                                            key={user.$id}
+                                                                            value={`${user.username} ${user.email}`}
+                                                                            onSelect={() => {
+                                                                                setEditFormData(prev => ({ ...prev, linkedUserId: user.$id }));
+                                                                                setComboboxOpen(false);
+                                                                            }}
+                                                                            className="text-gray-300 hover:bg-gray-700/50"
+                                                                        >
+                                                                            <Check
+                                                                                className={`mr-2 h-4 w-4 ${editFormData.linkedUserId === user.$id ? 'opacity-100' : 'opacity-0'}`}
+                                                                            />
+                                                                            {user.username} ({user.email})
+                                                                        </CommandItem>
+                                                                    ))}
+                                                            </CommandGroup>
+                                                        </Command>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </div>
                                         </div>
 
                                         <div className="space-y-4">
@@ -999,6 +1130,51 @@ export default function UserManagementPage() {
                                             className="bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 text-white"
                                         >
                                             {saveLoading ? 'Saving...' : 'Save Changes'}
+                                        </Button>
+                                    </div>
+                                </DialogContent>
+                            </Dialog>
+
+                            {/* Unlink Confirmation Dialog */}
+                            <Dialog open={showUnlinkConfirm} onOpenChange={setShowUnlinkConfirm}>
+                                <DialogContent className="bg-gray-800/95 border border-gray-700/50 backdrop-blur-md max-w-md">
+                                    <DialogHeader>
+                                        <DialogTitle className="text-white flex items-center gap-2">
+                                            <Icon icon="heroicons:exclamation-triangle-16-solid" className="h-5 w-5 text-yellow-400" />
+                                            Unlink Account
+                                        </DialogTitle>
+                                    </DialogHeader>
+                                    <div className="py-4">
+                                        <p className="text-gray-300 mb-4">
+                                            Are you sure you want to unlink this account? This will:
+                                        </p>
+                                        <ul className="list-disc list-inside text-sm text-gray-400 space-y-1 mb-4">
+                                            <li>Remove the connection between the character and auth user</li>
+                                            <li>Stop displaying stacked avatars</li>
+                                            <li>Remove hover card functionality</li>
+                                            <li>Allow the account to be linked to a different user</li>
+                                        </ul>
+                                        <p className="text-yellow-300 text-sm">
+                                            You can re-link the account later if needed.
+                                        </p>
+                                    </div>
+                                    <div className="flex justify-end space-x-2">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setShowUnlinkConfirm(false)}
+                                            className="bg-gray-800/70 border border-gray-700/50 text-white hover:bg-gray-700/70"
+                                        >
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={() => {
+                                                setEditFormData(prev => ({ ...prev, linkedUserId: '' }));
+                                                setShowUnlinkConfirm(false);
+                                            }}
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                        >
+                                            <Icon icon="heroicons:link-slash-16-solid" className="h-4 w-4 mr-2" />
+                                            Unlink Account
                                         </Button>
                                     </div>
                                 </DialogContent>

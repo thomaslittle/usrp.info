@@ -29,6 +29,10 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Check, ChevronsUpDown } from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
     Table,
     TableBody,
@@ -73,6 +77,7 @@ interface EditUserFormData {
     isAviationCert: boolean;
     isPsychNeuro: boolean;
     role: UserRole;
+    linkedUserId?: string;
 }
 
 const roleColors: { [key in UserRole]: "default" | "green" | "blue" | "sky" } = {
@@ -132,9 +137,38 @@ export function UserDataTable({
         isCoPilotCert: false,
         isAviationCert: false,
         isPsychNeuro: false,
-        role: 'viewer'
+        role: 'viewer',
+        linkedUserId: '',
     })
     const [saveLoading, setSaveLoading] = React.useState(false)
+    const [comboboxOpen, setComboboxOpen] = React.useState(false)
+
+    // Update form data when editing user changes
+    React.useEffect(() => {
+        if (editingUser) {
+            setEditFormData({
+                username: editingUser.username || '',
+                gameCharacterName: editingUser.gameCharacterName || '',
+                rank: editingUser.rank || '',
+                jobTitle: editingUser.jobTitle || '',
+                phoneNumber: editingUser.phoneNumber || '',
+                callsign: editingUser.callsign || '',
+                assignment: editingUser.assignment || '',
+                activity: editingUser.activity || 'Active',
+                status: editingUser.status || 'Full-Time',
+                timezone: editingUser.timezone || '',
+                discordUsername: editingUser.discordUsername || '',
+                isFTO: editingUser.isFTO || false,
+                isSoloCleared: editingUser.isSoloCleared || false,
+                isWaterRescue: editingUser.isWaterRescue || false,
+                isCoPilotCert: editingUser.isCoPilotCert || false,
+                isAviationCert: editingUser.isAviationCert || false,
+                isPsychNeuro: editingUser.isPsychNeuro || false,
+                role: editingUser.role || 'viewer',
+                linkedUserId: editingUser.linkedUserId || '',
+            });
+        }
+    }, [editingUser]);
 
     const canManageUser = (user: User) => {
         if (!currentUser) return false
@@ -144,26 +178,6 @@ export function UserDataTable({
 
     const handleEditUser = (user: User) => {
         setEditingUser(user)
-        setEditFormData({
-            username: user.username || '',
-            gameCharacterName: user.gameCharacterName || '',
-            rank: user.rank || '',
-            jobTitle: user.jobTitle || '',
-            phoneNumber: user.phoneNumber || '',
-            callsign: user.callsign || '',
-            assignment: user.assignment || '',
-            activity: user.activity || 'Active',
-            status: user.status || 'Full-Time',
-            timezone: user.timezone || '',
-            discordUsername: user.discordUsername || '',
-            isFTO: user.isFTO || false,
-            isSoloCleared: user.isSoloCleared || false,
-            isWaterRescue: user.isWaterRescue || false,
-            isCoPilotCert: user.isCoPilotCert || false,
-            isAviationCert: user.isAviationCert || false,
-            isPsychNeuro: user.isPsychNeuro || false,
-            role: user.role
-        })
     }
 
     const handleSaveUser = async () => {
@@ -171,7 +185,7 @@ export function UserDataTable({
 
         setSaveLoading(true)
         try {
-            await onEditUser(editingUser.$id, editFormData)
+            await onEditUser(editingUser.$id, { ...editFormData, linkedUserId: editFormData.linkedUserId || undefined })
             setEditingUser(null)
         } catch (error) {
             console.error('Error saving user:', error)
@@ -415,7 +429,7 @@ export function UserDataTable({
         onRowSelectionChange: setRowSelection,
         initialState: {
             pagination: {
-                pageSize: 25,
+                pageSize: 50,
             },
         },
         state: {
@@ -589,8 +603,16 @@ export function UserDataTable({
 
             {/* Edit User Dialog */}
             <Dialog open={!!editingUser} onOpenChange={(open) => !open && setEditingUser(null)}>
-                <DialogContent className="bg-gray-900/95 border border-gray-700/50 backdrop-blur-xl shadow-2xl max-w-3xl max-h-[85vh] flex flex-col rounded-xl">
-                    <DialogHeader className="pb-4 border-b border-gray-700/30">
+                <DialogContent className="bg-gray-900/95 border border-gray-700/50 backdrop-blur-xl shadow-2xl max-w-3xl max-h-[85vh] flex flex-col rounded-xl p-0" showCloseButton={false}>
+                    {/* Custom close button with proper positioning */}
+                    <button
+                        onClick={() => setEditingUser(null)}
+                        className="absolute top-6 right-6 z-10 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none text-gray-400 hover:text-white"
+                    >
+                        <Icon icon="heroicons:x-mark-16-solid" className="h-4 w-4" />
+                        <span className="sr-only">Close</span>
+                    </button>
+                    <DialogHeader className="pb-4 border-b border-gray-700/30 px-6 pt-6">
                         <DialogTitle className="text-xl font-semibold text-white flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
                                 <Icon icon="heroicons:user-16-solid" className="w-5 h-5 text-white" />
@@ -598,7 +620,7 @@ export function UserDataTable({
                             Edit User: {editingUser?.username}
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="overflow-y-auto flex-1 px-6 py-6 space-y-6">
+                    <div className="overflow-y-auto flex-1 py-6 px-6 space-y-6">
                         {/* Basic Information */}
                         <div className="space-y-4">
                             <h3 className="text-lg font-medium text-white flex items-center gap-2">
@@ -711,10 +733,10 @@ export function UserDataTable({
                                 <div className="space-y-2">
                                     <Label htmlFor="activity" className="text-sm font-medium text-gray-300">Activity</Label>
                                     <Select
-                                        value={editFormData.activity}
+                                        value={String(editFormData.activity || 'Active')}
                                         onValueChange={(value) => setEditFormData(prev => ({ ...prev, activity: value as 'Active' | 'Moderate' | 'Inactive' }))}
                                     >
-                                        <SelectTrigger className="bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors">
+                                        <SelectTrigger className="bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors w-full">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="bg-gray-800/95 border border-gray-600/50 backdrop-blur-md">
@@ -727,10 +749,10 @@ export function UserDataTable({
                                 <div className="space-y-2">
                                     <Label htmlFor="status" className="text-sm font-medium text-gray-300">Status</Label>
                                     <Select
-                                        value={editFormData.status}
+                                        value={String(editFormData.status || 'Full-Time')}
                                         onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value as 'Full-Time' | 'Part-Time' | 'On-Call' }))}
                                     >
-                                        <SelectTrigger className="bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors">
+                                        <SelectTrigger className="bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors w-full">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="bg-gray-800/95 border border-gray-600/50 backdrop-blur-md">
@@ -782,10 +804,10 @@ export function UserDataTable({
                             <div className="space-y-2">
                                 <Label htmlFor="role" className="text-sm font-medium text-gray-300">Access Level</Label>
                                 <Select
-                                    value={editFormData.role}
+                                    value={String(editFormData.role || 'viewer')}
                                     onValueChange={(value) => setEditFormData(prev => ({ ...prev, role: value as UserRole }))}
                                 >
-                                    <SelectTrigger className="bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors">
+                                    <SelectTrigger className="w-full bg-gray-800/60 border border-gray-600/50 text-white focus:border-purple-500/50 focus:ring-purple-500/20 transition-colors">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-800/95 border border-gray-600/50 backdrop-blur-md">
@@ -861,6 +883,80 @@ export function UserDataTable({
                                         <Label htmlFor="isPsychNeuro" className="text-sm text-gray-300 cursor-pointer">Psych/Neuro</Label>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Linked Account */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium text-white flex items-center gap-2">
+                                <Icon icon="heroicons:link-16-solid" className="w-5 h-5 text-purple-400" />
+                                Linked Account
+                            </h3>
+                            <div className="space-y-2">
+                                <Label htmlFor="linkedUserId" className="text-sm font-medium text-gray-300">Link to another user</Label>
+                                <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={comboboxOpen}
+                                            className="w-full justify-between bg-gray-800/60 border border-gray-600/50 text-white hover:bg-gray-700/60 focus:border-purple-500/50 focus:ring-purple-500/20"
+                                        >
+                                            {editFormData.linkedUserId && editFormData.linkedUserId !== "none"
+                                                ? data?.find(user => user.$id === editFormData.linkedUserId)?.username + " (" + data?.find(user => user.$id === editFormData.linkedUserId)?.email + ")"
+                                                : "Select user to link..."
+                                            }
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-full p-0 bg-gray-800/95 border border-gray-600/50 backdrop-blur-md">
+                                        <Command className="bg-transparent">
+                                            <CommandInput placeholder="Search users..." className="bg-transparent border-0 text-white placeholder:text-gray-400" />
+                                            <CommandList>
+                                                <CommandEmpty className="text-gray-400 text-center py-6">No user found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    <CommandItem
+                                                        value="none"
+                                                        onSelect={() => {
+                                                            setEditFormData(prev => ({ ...prev, linkedUserId: "" }))
+                                                            setComboboxOpen(false)
+                                                        }}
+                                                        className="text-gray-300 hover:bg-purple-600/20"
+                                                    >
+                                                        <Check
+                                                            className={cn(
+                                                                "mr-2 h-4 w-4",
+                                                                (!editFormData.linkedUserId || editFormData.linkedUserId === "none") ? "opacity-100" : "opacity-0"
+                                                            )}
+                                                        />
+                                                        None
+                                                    </CommandItem>
+                                                    {data && Array.isArray(data) && data
+                                                        .filter(user => user && user.$id && user.$id !== editingUser?.$id && user.username && user.email)
+                                                        .map(user => (
+                                                            <CommandItem
+                                                                key={user.$id}
+                                                                value={`${user.username} ${user.email}`}
+                                                                onSelect={() => {
+                                                                    setEditFormData(prev => ({ ...prev, linkedUserId: user.$id }))
+                                                                    setComboboxOpen(false)
+                                                                }}
+                                                                className="text-gray-300 hover:bg-purple-600/20"
+                                                            >
+                                                                <Check
+                                                                    className={cn(
+                                                                        "mr-2 h-4 w-4",
+                                                                        editFormData.linkedUserId === user.$id ? "opacity-100" : "opacity-0"
+                                                                    )}
+                                                                />
+                                                                {user.username} ({user.email})
+                                                            </CommandItem>
+                                                        ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                         </div>
                     </div>

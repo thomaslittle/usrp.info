@@ -40,12 +40,13 @@ export const userService = {
     }
   },
 
-  async getByDepartment(department: DepartmentType) {
+  async getByDepartment(department: DepartmentType, limit = 1000, offset = 0) {
     try {
+      const queries = [Query.equal('department', department), Query.limit(limit), Query.offset(offset)];
       const result = await adminDatabases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
-        [Query.equal('department', department)]
+        queries
       );
       return result.documents;
     } catch (error) {
@@ -54,7 +55,7 @@ export const userService = {
     }
   },
 
-  async update(userId: string, updates: Partial<User>) {
+  async update(userId: string, updates: Partial<Omit<User, '$id' | '$createdAt' | '$updatedAt'>>) {
     return await adminDatabases.updateDocument(DATABASE_ID, COLLECTIONS.USERS, userId, updates);
   },
 
@@ -62,12 +63,13 @@ export const userService = {
     return await adminDatabases.deleteDocument(DATABASE_ID, COLLECTIONS.USERS, userId);
   },
 
-  async list(queries: string[] = []) {
+  async list(queries: string[] = [], limit = 25, offset = 0) {
     try {
+      const fullQueries = [...queries, Query.limit(limit), Query.offset(offset)];
       const result = await adminDatabases.listDocuments(
         DATABASE_ID,
         COLLECTIONS.USERS,
-        queries
+        fullQueries
       );
       return result.documents;
     } catch (error) {

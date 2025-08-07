@@ -26,6 +26,8 @@ export interface User {
   $createdAt: string;
   $updatedAt: string;
   appwriteAccountId?: string;
+  linkedUserId?: string;
+  linkedUser?: User; // For display purposes when showing merged accounts
 }
 
 export interface Department {

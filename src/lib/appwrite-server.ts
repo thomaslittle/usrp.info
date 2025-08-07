@@ -2,10 +2,14 @@ import { Client, Account, Databases, Storage, Functions, Users } from 'node-appw
 
 export const adminClient = new Client();
 
+const apiKey = process.env.APPWRITE_API_KEY;
+if (!apiKey) {
+  throw new Error('Missing APPWRITE_API_KEY environment variable');
+}
 adminClient
   .setEndpoint('https://appwrite.usrp.info/v1')
   .setProject('684492280037c88a3856')
-  .setKey('***REMOVED***');
+  .setKey(apiKey);
 
 export const adminAccount = new Account(adminClient);
 export const adminDatabases = new Databases(adminClient);

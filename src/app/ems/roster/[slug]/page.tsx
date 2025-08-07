@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { DepartmentLayout } from '@/components/department-layout';
 import { EMSRosterTable } from '@/components/ems-roster-table';
 import { userService } from '@/lib/database';
+
 import { User } from '@/types';
 
 const emsConfig = {
@@ -56,7 +57,10 @@ async function getRosterData(slug: string): Promise<{ users: User[], rosterInfo:
 
         // Get EMS users for the roster
         const emsUserDocs = await userService.getByDepartment('ems');
-        const users = (emsUserDocs as unknown as User[]).filter(user => user.role !== 'super_admin');
+        const allUsers = (emsUserDocs as unknown as User[]).filter(user => user.role !== 'super_admin');
+
+        // Just use all users as-is, no merging
+        const processedUsers = allUsers;
 
         const rosterInfo: RosterInfo = {
             title: 'Department Roster',
@@ -69,7 +73,7 @@ async function getRosterData(slug: string): Promise<{ users: User[], rosterInfo:
             slug: 'department-roster'
         };
 
-        return { users, rosterInfo };
+        return { users: processedUsers, rosterInfo };
     } catch (error) {
         console.error('Error fetching roster data:', error);
         return null;

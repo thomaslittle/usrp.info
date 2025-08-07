@@ -24,13 +24,16 @@ export async function GET(request: NextRequest) {
 
     let users = [];
 
+    const limit = parseInt(searchParams.get('limit') || '25', 10);
+    const offset = parseInt(searchParams.get('offset') || '0', 10);
+
     // Check permissions and load appropriate users
     if (currentUser.role === 'super_admin') {
       // Super admin can see all users
-      users = await userService.list();
+      users = await userService.list([], limit, offset);
     } else if (currentUser.role === 'admin') {
       // Admin can see users in their department
-      users = await userService.getByDepartment(currentUser.department);
+      users = await userService.getByDepartment(currentUser.department, limit, offset);
     } else {
       // Non-admin users cannot access user management
       return NextResponse.json(
@@ -39,8 +42,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Just return all users as-is - no merging
     return NextResponse.json({ 
-      users,
+      users: users,
       currentUser 
     });
   } catch (error) {

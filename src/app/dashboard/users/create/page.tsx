@@ -224,7 +224,7 @@ export default function CreateUserPage() {
                                         Department <span className="text-red-400">*</span>
                                     </Label>
                                     <Select value={formData.department} onValueChange={(value) => handleInputChange('department', value as DepartmentType)}>
-                                        <SelectTrigger className={`bg-gray-800/70 border ${errors.department ? 'border-red-500' : 'border-gray-700/50'} text-white`}>
+                                        <SelectTrigger className={`bg-gray-800/70 border ${errors.department ? 'border-red-500' : 'border-gray-700/50'} text-white w-full`}>
                                             <SelectValue placeholder="Select department" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-gray-800 border-gray-700">
@@ -244,7 +244,7 @@ export default function CreateUserPage() {
                                         Role <span className="text-red-400">*</span>
                                     </Label>
                                     <Select value={formData.role} onValueChange={(value) => handleInputChange('role', value as UserRole)}>
-                                        <SelectTrigger className={`bg-gray-800/70 border ${errors.role ? 'border-red-500' : 'border-gray-700/50'} text-white`}>
+                                        <SelectTrigger className={`bg-gray-800/70 border ${errors.role ? 'border-red-500' : 'border-gray-700/50'} text-white w-full`}>
                                             <SelectValue placeholder="Select role" />
                                         </SelectTrigger>
                                         <SelectContent className="bg-gray-800 border-gray-700">
@@ -350,7 +350,7 @@ export default function CreateUserPage() {
                                         Activity Level
                                     </Label>
                                     <Select value={formData.activity} onValueChange={(value) => handleInputChange('activity', value)}>
-                                        <SelectTrigger className="bg-gray-800/70 border border-gray-700/50 text-white">
+                                        <SelectTrigger className="bg-gray-800/70 border border-gray-700/50 text-white w-full">
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent className="bg-gray-800 border-gray-700">

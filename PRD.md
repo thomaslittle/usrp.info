@@ -26,7 +26,7 @@ Create a comprehensive, editable resource website for the Unscripted GTA5 rolepl
 // Server Configuration
 API_ENDPOINT: "http://appwrite-qswcko448k448gwkg0o8ookk.38.45.67.215.sslip.io/v1"
 PROJECT_ID: "684492280037c88a3856"
-API_KEY: "***REMOVED***"
+API_KEY: "<REDACTED>" // Use environment variable APPWRITE_API_KEY instead
 ```
 
 ### Font Requirements

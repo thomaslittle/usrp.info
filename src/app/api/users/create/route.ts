@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { adminDatabases, DATABASE_ID, COLLECTIONS } from '@/lib/appwrite-server';
 import { ID } from 'node-appwrite';
+import { userService } from '@/lib/database';
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,6 +37,16 @@ export async function POST(request: NextRequest) {
     if (userData.discordUsername) userDoc.discordUsername = userData.discordUsername;
 
     console.log('Creating user with data:', userDoc);
+
+    // Check if a user with this email already exists
+    const existingUser = await userService.getByEmail(userData.email);
+    if (existingUser) {
+      // Update the existing user with any new fields provided
+      const updates: Record<string, unknown> = { ...userDoc };
+      delete updates.userId; // Don't overwrite userId
+      const updatedUser = await userService.update(existingUser.$id, updates);
+      return NextResponse.json({ user: updatedUser, linked: true });
+    }
 
     // Use adminDatabases to create user
     const user = await adminDatabases.createDocument(
