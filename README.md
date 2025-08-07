@@ -1,6 +1,6 @@
-# Unscripted EMS Resource Website
+# ~~Unscripted~~ UNTITLED PENTA PROJECT RP BCSO/LSPD/EMS/DOJ Resource Website
 
-A comprehensive, editable resource website for the Unscripted GTA5 roleplay server's EMS (EMS/TacMed) department, with scalable architecture to support future departments (Police, DOJ, etc.).
+A comprehensive, editable resource website for the ~~Unscripted~~ UPPRP GTA5 roleplay server, with scalable architecture to support future departments (Police, DOJ, etc.).
 
 ## 🚀 Features
 
@@ -14,7 +14,7 @@ A comprehensive, editable resource website for the Unscripted GTA5 roleplay serv
 
 ### Technical Stack
 - **Framework**: Next.js 15 with App Router
-- **Styling**: Tailwind CSS v4 with custom EMS theme
+- **Styling**: Tailwind CSS v4
 - **Authentication**: Appwrite (server-side API calls)
 - **Database**: Appwrite Collections
 - **State Management**: Zustand for client state, React Query for server state
@@ -164,17 +164,9 @@ The architecture supports easy addition of new departments:
 ### Planned Departments
 - **Police Department (LSPD)**: Police procedures and protocols
 - **Department of Justice (DOJ)**: Legal procedures and court protocols
-- **Fire Department**: Fire and rescue operations
 - **Government/Mayor Office**: Administrative procedures
 
 ## 📝 License
 
-This project is for the Unscripted Roleplay Community.
-
-## 🤝 Contributing
-
-This is a private project for the Unscripted community. For questions or contributions, contact the development team.
-
+This project is for the ~~Unscripted~~ UNTITLED PENTA PROJECT RP Community.
 ---
-
-**Unscripted Roleplay Community • EMS Resource Portal**
