@@ -5,6 +5,7 @@ import { UserNav } from '@/components/user-nav';
 import '@/lib/fetch-logger';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://usrp.info'),
   title: "PENTA UNTITLED PROJECT RP Resource Portal",
   description: "Comprehensive resource website for the PENTA UNTITLED PROJECT RP GTA5 roleplay server's EMS department with SOPs, protocols, and reference materials.",
   keywords: ["PENTA UNTITLED PROJECT RP", "EMS", "roleplay", "GTA5", "emergency medical services", "SOPs", "protocols"],
@@ -58,11 +59,6 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-  },
 };
 
 export default function RootLayout({
@@ -73,8 +69,15 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
-        <link rel="preconnect" href="https://fonts.cdnfonts.com" />
-        <link href="https://fonts.cdnfonts.com/css/akrobat" rel="stylesheet" />
+        {/* Critical resource preloads */}
+        <link rel="preload" href="/images/bg.webp" as="image" type="image/webp" fetchPriority="high" />
+        <link rel="preload" href="/images/wordmark.webp" as="image" type="image/webp" fetchPriority="high" />
+
+        {/* Font preloads and connections - using system fonts only */}
+
+        {/* Iconify preconnect */}
+        <link rel="preconnect" href="https://api.iconify.design" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.iconify.design" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

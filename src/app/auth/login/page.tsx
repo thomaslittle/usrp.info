@@ -82,6 +82,7 @@ function LoginPageContent() {
                             width={192}
                             height={50}
                             className="object-contain"
+                            sizes="192px"
                         />
                     </div>
                     <p className="text-gray-400">Sign in to your account to continue</p>
@@ -199,6 +200,7 @@ function LoginPageLoading() {
                             width={192}
                             height={50}
                             className="object-contain"
+                            sizes="192px"
                         />
                     </div>
                     <p className="text-gray-400">Loading...</p>

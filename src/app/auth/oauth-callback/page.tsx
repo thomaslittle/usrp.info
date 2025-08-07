@@ -55,6 +55,7 @@ function OAuthCallbackContent() {
                         height={64}
                         className="object-contain"
                         priority
+                        sizes="192px"
                     />
                 </div>
                 <CardTitle className="text-white">
@@ -124,6 +125,7 @@ function LoadingFallback() {
                         height={64}
                         className="object-contain"
                         priority
+                        sizes="192px"
                     />
                 </div>
                 <CardTitle className="text-white">Loading...</CardTitle>

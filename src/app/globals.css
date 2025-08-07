@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Akrobat:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -87,7 +86,7 @@
 
 @theme {
   --font-family-sans: 'Poppins', system-ui, sans-serif;
-  --font-family-heading: 'Akrobat', 'Poppins', system-ui, sans-serif;
+  --font-family-heading: 'Poppins', system-ui, sans-serif;
   --font-family-mono: 'JetBrains Mono', ui-monospace, monospace;
   
   --color-primary: #A855F7;
@@ -213,11 +212,11 @@ body {
 }
 
 .font-akrobat {
-  font-family: 'Akrobat', 'Poppins', system-ui, sans-serif;
+  font-family: 'Poppins', system-ui, sans-serif;
 }
 
 .font-heading {
-  font-family: 'Akrobat', 'Poppins', system-ui, sans-serif;
+  font-family: 'Poppins', system-ui, sans-serif;
 }
 
 .font-mono {

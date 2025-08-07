@@ -17,9 +17,13 @@ const nextConfig: NextConfig = {
       'lucide-react',
     ],
   },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
   compress: true,
   poweredByHeader: false,
   generateEtags: true,
+  
   
   async headers() {
     return [

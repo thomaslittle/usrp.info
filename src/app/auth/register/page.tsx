@@ -149,6 +149,7 @@ export default function RegisterPage() {
                             height={64}
                             className="object-contain"
                             priority
+                            sizes="192px"
                         />
                     </div>
                     <CardTitle className="text-white text-2xl font-bold">Create Account</CardTitle>

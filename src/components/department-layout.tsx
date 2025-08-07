@@ -43,8 +43,8 @@ export function DepartmentLayout({ children, config, currentPath, currentUser }:
                             {/* Back to Home */}
                             <Link href="/" className="flex items-center gap-3 group ml-0 md:ml-0">
                                 <div>
-                                    <Image src="/images/logo-short.png" alt="PENTA UNTITLED PROJECT RP" width={40} height={40} className="sm:hidden" />
-                                    <Image src="/images/PENTA UNTITLED PROJECT RP_logo.webp" alt="PENTA UNTITLED PROJECT RP" width={168} height={26} className="hidden sm:block" />
+                                    <Image src="/images/logo-short.png" alt="PENTA UNTITLED PROJECT RP" width={40} height={40} className="sm:hidden" sizes="40px" />
+                                    <Image src="/images/unscripted_logo.webp" alt="PENTA UNTITLED PROJECT RP" width={168} height={26} className="hidden sm:block" sizes="168px" />
                                     <div className="text-purple-300 text-sm text-left md:text-right">Resource Portal</div>
                                 </div>
                             </Link>
